@@ -10,7 +10,15 @@ public class CharacterController2 : MonoBehaviour
 
     private void Start()
     {
-        Initialize(characterPosition);
+        if (mapView == null)
+        {
+            Initialize(characterPosition);
+        }
+        else
+        {
+            Debug.LogWarning("MapView no asignado en CHaracterController2");
+        }
+        
     }
 
     private void Update()

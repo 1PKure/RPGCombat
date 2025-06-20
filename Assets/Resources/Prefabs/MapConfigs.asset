@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72d936ebeeedadf48aadf4efc2437b73, type: 3}
   m_Name: MapConfigs
   m_EditorClassIdentifier: 
-  GridCellSize: 0.48
+  GridCellSize: 0.5
   GridWidth: 4
   GridHeight: 6
   ObstacleProbability: 0.2

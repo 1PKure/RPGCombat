@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class MapView : MonoBehaviour
 {
+    [SerializeField] private List<GameObject> enemyPrefabs;
+    [SerializeField] private int numberOfEnemies = 3;
     private List<List<TerrainType>> map;
     public List<List<GameObject>> Grid { get; private set; }
 
@@ -13,6 +15,7 @@ public class MapView : MonoBehaviour
     {
         map = MapBuilder.GenerateMap(mapConfigs.GridWidth, mapConfigs.GridHeight, mapConfigs.ObstacleProbability, mapConfigs.StartPosition);
         InitializeMap(map);
+        SpawnEnemiesOnMap();
     }
 
     public void InitializeMap(List<List<TerrainType>> map)
@@ -56,4 +59,35 @@ public class MapView : MonoBehaviour
             && posibleNewPosition.y < map.Count
             && posibleNewPosition.x < map[posibleNewPosition.y].Count;
     }
+
+    private void SpawnEnemiesOnMap()
+    {
+        var walkablePositions = new List<Vector2Int>();
+
+        for (int row = 0; row < map.Count; row++)
+        {
+            for (int col = 0; col < map[row].Count; col++)
+            {
+                if (map[row][col] == TerrainType.GRASS)
+                {
+                    walkablePositions.Add(new Vector2Int(col, row));
+                }
+            }
+        }
+
+        for (int i = 0; i < numberOfEnemies && walkablePositions.Count > 0; i++)
+        {
+            int index = Random.Range(0, walkablePositions.Count);
+            Vector2Int spawnPos = walkablePositions[index];
+            walkablePositions.RemoveAt(index);
+
+            GameObject selectedEnemy = enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
+
+            Vector3 worldPos = new Vector3(spawnPos.x * mapConfigs.GridCellSize, spawnPos.y * mapConfigs.GridCellSize, 0);
+            Instantiate(selectedEnemy, worldPos, Quaternion.identity);
+        }
+    }
+
+
+
 }
