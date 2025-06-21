@@ -7,21 +7,16 @@ public static class MapBuilder
     {
         var map = new List<List<TerrainType>>();
 
-        for (var width = 0; width < gridWidth; width++)
+        for (int row = 0; row < gridHeight; row++)
         {
-            var row = new List<TerrainType>();
-            for (var height = 0; height < gridHeight; height++)
+            var mapRow = new List<TerrainType>();
+            for (int col = 0; col < gridWidth; col++)
             {
-                if(Random.Range(0f, 1f) <= obstacleProbability)
-                    row.Add(TerrainType.TREE);
-                else
-                    row.Add(TerrainType.GRASS);
+                mapRow.Add(TerrainType.GRASS);
             }
-            map.Add(row);
+            map.Add(mapRow);
         }
-        map[startPosition.x][startPosition.y] = TerrainType.START;
-        map[gridWidth-1][gridHeight-1] = TerrainType.FINISH;
-            
+
         return map;
     }
 }

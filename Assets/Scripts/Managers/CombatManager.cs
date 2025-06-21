@@ -37,7 +37,7 @@ public class CombatManager : MonoBehaviour
         currentEnemy.TakeDamage(damage);
         UIManager.Instance.ShowEnemyHealth(currentEnemy.Health);
 
-        if (currentEnemy.IsDead())
+        if (currentEnemy.IsDead)
         {
             EndCombat(true);
             Destroy(currentEnemy.gameObject);

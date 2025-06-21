@@ -1,15 +1,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterController2 : MonoBehaviour
+public class CharacterController2 : MonoBehaviour, IUnit
 {
     [SerializeField] private MapView mapView;
     [SerializeField] private int speed = 1;
-
+    public string UnitName => gameObject.name;
+    public bool IsPlayer => true;
+    public int Speed => speed;
+    public int Health => currentHealth;
+    public bool IsDead => currentHealth <= 0;
     private Vector2Int characterPosition;
+    private bool myTurn = false;
+    private int currentHealth = 15;
 
     private void Start()
     {
+        TurnManager.Instance.RegisterUnit(this);
         if (mapView == null)
         {
             Initialize(characterPosition);
@@ -21,9 +28,27 @@ public class CharacterController2 : MonoBehaviour
         
     }
 
+    public void StartTurn()
+    {
+        myTurn = true;
+        Debug.Log(UnitName + " comienza su turno.");
+    }
+
+    public void EndTurn()
+    {
+        myTurn = false;
+    }
+
     private void Update()
     {
-        MoveCharacter();
+        if (!myTurn) return;
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Debug.Log(UnitName + " realiza su acción.");
+            MoveCharacter();
+            TurnManager.Instance.EndCurrentTurn();
+        }
+
     }
 
     private void TryMove(int modX, int modY)
@@ -36,9 +61,6 @@ public class CharacterController2 : MonoBehaviour
             GameObject gridCell = mapView.Grid[characterPosition.y][characterPosition.x];
             transform.SetParent(gridCell.transform);
             transform.localPosition = Vector3.zero;
-
-            if (mapView.IsWinningCell(characterPosition))
-                Debug.Log("YOU WIN!!!");
         }
     }
    

@@ -5,7 +5,9 @@ using UnityEngine;
 public class MapView : MonoBehaviour
 {
     [SerializeField] private List<GameObject> enemyPrefabs;
-    [SerializeField] private int numberOfEnemies = 3;
+    [SerializeField] private List<GameObject> playerPrefabs;
+    [SerializeField] private int numberOfPlayers = 3;
+    [SerializeField] private int numberOfEnemies = 2;
     private List<List<TerrainType>> map;
     public List<List<GameObject>> Grid { get; private set; }
 
@@ -13,51 +15,12 @@ public class MapView : MonoBehaviour
 
     private void Awake()
     {
+        
         map = MapBuilder.GenerateMap(mapConfigs.GridWidth, mapConfigs.GridHeight, mapConfigs.ObstacleProbability, mapConfigs.StartPosition);
         InitializeMap(map);
+        SpawnPlayersOnMap();
         SpawnEnemiesOnMap();
-    }
-
-    public void InitializeMap(List<List<TerrainType>> map)
-    {
-        Grid = new List<List<GameObject>>();
-
-        for (var row = 0; row < map.Count; row++)
-        {
-            var gridRow = new List<GameObject>();
-            for (var column = 0; column < map[row].Count; column++)
-            {
-                var terrainType = map[row][column];
-
-                var gridCell = Instantiate(Resources.Load<GameObject>("Prefabs/" + terrainType), transform);
-                gridCell.transform.localPosition = new Vector3(column * mapConfigs.GridCellSize, row * mapConfigs.GridCellSize, 1);
-                gridRow.Add(gridCell);
-            }
-            Grid.Add(gridRow);
-        }
-    }
-
-    public bool IsWinningCell(Vector2Int characterPosition)
-    {
-        return map[characterPosition.y][characterPosition.x] == TerrainType.FINISH;
-    }
-
-    public bool IsAValidPosition(Vector2Int posibleNewPosition)
-    {
-        return ThePositionExists(posibleNewPosition) && PositionIsNotBlocked(posibleNewPosition);
-    }
-
-    private bool PositionIsNotBlocked(Vector2Int posibleNewPosition)
-    {
-        return map[posibleNewPosition.y][posibleNewPosition.x] != TerrainType.TREE;
-    }
-
-    private bool ThePositionExists(Vector2Int posibleNewPosition)
-    {
-        return posibleNewPosition.x >= 0
-            && posibleNewPosition.y >= 0
-            && posibleNewPosition.y < map.Count
-            && posibleNewPosition.x < map[posibleNewPosition.y].Count;
+        TurnManager.Instance.StartCombatTurnCycle();
     }
 
     private void SpawnEnemiesOnMap()
@@ -87,6 +50,74 @@ public class MapView : MonoBehaviour
             Instantiate(selectedEnemy, worldPos, Quaternion.identity);
         }
     }
+    private void SpawnPlayersOnMap()
+    {
+        var walkablePositions = GetWalkablePositions();
+
+        for (int i = 0; i < numberOfPlayers && walkablePositions.Count > 0; i++)
+        {
+            int index = Random.Range(0, walkablePositions.Count);
+            Vector2Int spawnPos = walkablePositions[index];
+            walkablePositions.RemoveAt(index);
+
+            GameObject selectedPlayer = playerPrefabs[i];
+            Vector3 worldPos = new Vector3(spawnPos.x * mapConfigs.GridCellSize, spawnPos.y * mapConfigs.GridCellSize, 0);
+            GameObject player = Instantiate(selectedPlayer, worldPos, Quaternion.identity);
+
+            if (player.TryGetComponent<CharacterController2>(out var controller))
+            {
+                controller.Initialize(spawnPos);
+            }
+        }
+    }
+
+    private List<Vector2Int> GetWalkablePositions()
+    {
+        var walkable = new List<Vector2Int>();
+        for (int row = 0; row < map.Count; row++)
+            for (int col = 0; col < map[row].Count; col++)
+                if (map[row][col] == TerrainType.GRASS)
+                    walkable.Add(new Vector2Int(col, row));
+        return walkable;
+    }
+
+    public void InitializeMap(List<List<TerrainType>> map)
+    {
+        Grid = new List<List<GameObject>>();
+
+        for (var row = 0; row < map.Count; row++)
+        {
+            var gridRow = new List<GameObject>();
+            for (var column = 0; column < map[row].Count; column++)
+            {
+                var terrainType = map[row][column];
+
+                var gridCell = Instantiate(Resources.Load<GameObject>("Prefabs/" + terrainType), transform);
+                gridCell.transform.localPosition = new Vector3(column * mapConfigs.GridCellSize, row * mapConfigs.GridCellSize, 1);
+                gridRow.Add(gridCell);
+            }
+            Grid.Add(gridRow);
+        }
+    }
+
+    public bool IsAValidPosition(Vector2Int posibleNewPosition)
+    {
+        return ThePositionExists(posibleNewPosition) && PositionIsNotBlocked(posibleNewPosition);
+    }
+
+    private bool PositionIsNotBlocked(Vector2Int posibleNewPosition)
+    {
+        return map[posibleNewPosition.y][posibleNewPosition.x] != TerrainType.TREE;
+    }
+
+    private bool ThePositionExists(Vector2Int posibleNewPosition)
+    {
+        return posibleNewPosition.x >= 0
+            && posibleNewPosition.y >= 0
+            && posibleNewPosition.y < map.Count
+            && posibleNewPosition.x < map[posibleNewPosition.y].Count;
+    }
+
 
 
 

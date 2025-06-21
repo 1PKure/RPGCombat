@@ -2,25 +2,38 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IUnit
 {
     [SerializeField] private int maxHealth = 10;
     [SerializeField] private int attackPower = 3;
+    private int currentHealth;
+    public string UnitName => gameObject.name;
+    public bool IsPlayer => false;
+    public int Speed => 2;
+    public int Health => currentHealth;
 
-    public int Health { get; private set; }
-
+    public bool IsDead => Health <= 0;
+    private void Start()
+    {
+        TurnManager.Instance.RegisterUnit(this);
+    }
     private void Awake()
     {
-        Health = maxHealth;
+        currentHealth = maxHealth;
     }
 
     public void TakeDamage(int amount)
     {
-        Health -= amount;
+        currentHealth -= amount;
     }
 
-    public bool IsDead() => Health <= 0;
 
+    public void StartTurn()
+    {
+        Debug.Log(UnitName + " (enemy) comienza su turno.");
+        TurnManager.Instance.EndCurrentTurn();
+    }
+    public void EndTurn() { }
     public int GetAttackPower() => attackPower;
 }
 

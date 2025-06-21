@@ -428,6 +428,11 @@ MonoBehaviour:
   enemyPrefabs:
   - {fileID: 1027943262188944416, guid: 5e7454a3b8b461d4aa93ef558646797e, type: 3}
   - {fileID: 1594493563794045310, guid: 6891dd1f46ae0c74b94a25458418248f, type: 3}
+  playerPrefabs:
+  - {fileID: 4117292339453850948, guid: 2b79eafc30810e14788579670b58aa7c, type: 3}
+  - {fileID: 2622135526270740208, guid: 0bb14f409fa4ace47a12ab6485aa64c4, type: 3}
+  - {fileID: 5979395217979080855, guid: 65a9872aee33eee4fbe458c4068187c2, type: 3}
+  numberOfPlayers: 3
   numberOfEnemies: 3
   mapConfigs: {fileID: 11400000, guid: c703d704bfc0153499a6415795474a43, type: 2}
 --- !u!1 &224069629
