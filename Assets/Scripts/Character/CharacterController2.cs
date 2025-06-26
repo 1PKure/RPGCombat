@@ -16,7 +16,6 @@ public class CharacterController2 : MonoBehaviour, IUnit
 
     private void Start()
     {
-        TurnManager.Instance.RegisterUnit(this);
         if (mapView == null)
         {
             Initialize(characterPosition);
@@ -46,7 +45,6 @@ public class CharacterController2 : MonoBehaviour, IUnit
         {
             Debug.Log(UnitName + " realiza su acción.");
             MoveCharacter();
-            TurnManager.Instance.EndCurrentTurn();
         }
 
     }

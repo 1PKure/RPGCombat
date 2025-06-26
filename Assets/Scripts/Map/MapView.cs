@@ -4,74 +4,19 @@ using UnityEngine;
 
 public class MapView : MonoBehaviour
 {
-    [SerializeField] private List<GameObject> enemyPrefabs;
-    [SerializeField] private List<GameObject> playerPrefabs;
-    [SerializeField] private int numberOfPlayers = 3;
-    [SerializeField] private int numberOfEnemies = 2;
     private List<List<TerrainType>> map;
     public List<List<GameObject>> Grid { get; private set; }
-
-    [SerializeField] private MapConfigsSO mapConfigs;
+    [SerializeField] public MapConfigsSO mapConfigs;
+    [SerializeField] private Vector2 gridOrigin = new Vector2(-6f, 0f);
 
     private void Awake()
     {
-        
+
         map = MapBuilder.GenerateMap(mapConfigs.GridWidth, mapConfigs.GridHeight, mapConfigs.ObstacleProbability, mapConfigs.StartPosition);
         InitializeMap(map);
-        SpawnPlayersOnMap();
-        SpawnEnemiesOnMap();
-        TurnManager.Instance.StartCombatTurnCycle();
     }
 
-    private void SpawnEnemiesOnMap()
-    {
-        var walkablePositions = new List<Vector2Int>();
-
-        for (int row = 0; row < map.Count; row++)
-        {
-            for (int col = 0; col < map[row].Count; col++)
-            {
-                if (map[row][col] == TerrainType.GRASS)
-                {
-                    walkablePositions.Add(new Vector2Int(col, row));
-                }
-            }
-        }
-
-        for (int i = 0; i < numberOfEnemies && walkablePositions.Count > 0; i++)
-        {
-            int index = Random.Range(0, walkablePositions.Count);
-            Vector2Int spawnPos = walkablePositions[index];
-            walkablePositions.RemoveAt(index);
-
-            GameObject selectedEnemy = enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
-
-            Vector3 worldPos = new Vector3(spawnPos.x * mapConfigs.GridCellSize, spawnPos.y * mapConfigs.GridCellSize, 0);
-            Instantiate(selectedEnemy, worldPos, Quaternion.identity);
-        }
-    }
-    private void SpawnPlayersOnMap()
-    {
-        var walkablePositions = GetWalkablePositions();
-
-        for (int i = 0; i < numberOfPlayers && walkablePositions.Count > 0; i++)
-        {
-            int index = Random.Range(0, walkablePositions.Count);
-            Vector2Int spawnPos = walkablePositions[index];
-            walkablePositions.RemoveAt(index);
-
-            GameObject selectedPlayer = playerPrefabs[i];
-            Vector3 worldPos = new Vector3(spawnPos.x * mapConfigs.GridCellSize, spawnPos.y * mapConfigs.GridCellSize, 0);
-            GameObject player = Instantiate(selectedPlayer, worldPos, Quaternion.identity);
-
-            if (player.TryGetComponent<CharacterController2>(out var controller))
-            {
-                controller.Initialize(spawnPos);
-            }
-        }
-    }
-
-    private List<Vector2Int> GetWalkablePositions()
+    public List<Vector2Int> GetWalkablePositions()
     {
         var walkable = new List<Vector2Int>();
         for (int row = 0; row < map.Count; row++)
@@ -88,12 +33,16 @@ public class MapView : MonoBehaviour
         for (var row = 0; row < map.Count; row++)
         {
             var gridRow = new List<GameObject>();
-            for (var column = 0; column < map[row].Count; column++)
+            for (var col = 0; col < map[row].Count; col++)
             {
-                var terrainType = map[row][column];
+                var terrainType = map[row][col];
 
                 var gridCell = Instantiate(Resources.Load<GameObject>("Prefabs/" + terrainType), transform);
-                gridCell.transform.localPosition = new Vector3(column * mapConfigs.GridCellSize, row * mapConfigs.GridCellSize, 1);
+                gridCell.transform.position = new Vector3(
+    gridOrigin.x + col * mapConfigs.GridCellSize,
+    gridOrigin.y + row * mapConfigs.GridCellSize,
+    1
+);
                 gridRow.Add(gridCell);
             }
             Grid.Add(gridRow);
@@ -117,7 +66,19 @@ public class MapView : MonoBehaviour
             && posibleNewPosition.y < map.Count
             && posibleNewPosition.x < map[posibleNewPosition.y].Count;
     }
+    public Vector3 GetWorldPosition(Vector2Int gridPosition)
+    {
+        return new Vector3(
+            gridOrigin.x + gridPosition.x * mapConfigs.GridCellSize,
+            gridOrigin.y + gridPosition.y * mapConfigs.GridCellSize,
+            0f
+        );
+    }
 
+    public List<Vector2Int> GetAvailablePositions()
+    {
+        return GetWalkablePositions();
+    }
 
 
 

@@ -13,10 +13,6 @@ public class Enemy : MonoBehaviour, IUnit
     public int Health => currentHealth;
 
     public bool IsDead => Health <= 0;
-    private void Start()
-    {
-        TurnManager.Instance.RegisterUnit(this);
-    }
     private void Awake()
     {
         currentHealth = maxHealth;
@@ -31,7 +27,6 @@ public class Enemy : MonoBehaviour, IUnit
     public void StartTurn()
     {
         Debug.Log(UnitName + " (enemy) comienza su turno.");
-        TurnManager.Instance.EndCurrentTurn();
     }
     public void EndTurn() { }
     public int GetAttackPower() => attackPower;
