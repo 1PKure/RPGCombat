@@ -11,13 +11,16 @@ public abstract class CharacterBase : MonoBehaviour
 
     public Vector2Int gridPosition;
 
-    public virtual void Initialize(string name, int health, int speed, Vector2Int position)
+    public CharacterStats stats;
+    public bool isMyTurn = false;
+
+    public virtual void Initialize(string name, int hp, int speed, Vector2Int pos)
     {
         this.characterName = name;
-        this.maxHealth = health;
-        this.currentHealth = health;
-        this.speed = speed;
-        this.gridPosition = position;
+        this.maxHealth = stats.maxHP;
+        this.currentHealth = stats.maxHP;
+        this.speed = stats.speed;
+        this.gridPosition = pos;
     }
 
     public abstract void PerformAction(System.Action onActionComplete);
@@ -26,11 +29,30 @@ public abstract class CharacterBase : MonoBehaviour
     {
         currentHealth -= amount;
         currentHealth = Mathf.Max(currentHealth, 0);
+        GetComponentInChildren<HPDisplay>()?.UpdateHP();
         Debug.Log($"{characterName} took {amount} damage. Current HP: {currentHealth}");
+    }
+
+
+    public virtual void Heal(int amount)
+    {
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+        GetComponentInChildren<HPDisplay>()?.UpdateHP();
+        Debug.Log($"{characterName} healed to {currentHealth}/{maxHealth} HP");
     }
 
     public bool IsAlive()
     {
         return currentHealth > 0;
+    }
+
+    public virtual void OnClickedToReceiveAction(System.Action callback)
+    {
+        
+    }
+
+    public void EndPlayerTurn()
+    {
+        isMyTurn = false;
     }
 }

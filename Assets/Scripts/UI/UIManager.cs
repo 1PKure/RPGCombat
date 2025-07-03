@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 
 public class UIManager : MonoBehaviour
 {
@@ -55,13 +56,18 @@ public class UIManager : MonoBehaviour
     {
         endPanel.SetActive(false);
     }
+    private void Highlight(CharacterBase character, bool enable)
+    {
+        var sprite = character.GetComponent<SpriteRenderer>();
+        if (sprite != null)
+            sprite.color = enable ? Color.red : Color.white;
+    }
 
     public void ShowActionsFor(PlayerCharacter player)
     {
         currentPlayer = player;
         actionPanel.SetActive(true);
 
-        // Activar/desactivar botones según el tipo
         if (player.characterName == "Fighter")
         {
             attackButton.interactable = true;
@@ -89,14 +95,44 @@ public class UIManager : MonoBehaviour
 
     private void DoAttack()
     {
-        Debug.Log($"{currentPlayer.characterName} attacks!");
-        EndTurn();
+        var enemiesInRange = currentPlayer.GetEnemiesInRange();
+
+        if (enemiesInRange.Count == 0)
+        {
+            Debug.Log("No hay enemigos en rango.");
+            return;
+        }
+
+        foreach (var enemy in enemiesInRange)
+        {
+            Highlight(enemy, true);
+            enemy.OnClickedToReceiveAction(() =>
+            {
+                Highlight(enemy, false);
+                CombatManager.Instance.ExecuteAttack(currentPlayer, enemy);
+            });
+        }
     }
 
     private void DoHeal()
     {
-        Debug.Log($"{currentPlayer.characterName} heals!");
-        EndTurn();
+        List<CharacterBase> allies = currentPlayer.GetAlliesInHealRange();
+
+        if (allies.Count == 0)
+        {
+            Debug.Log("No hay aliados para curar.");
+            return;
+        }
+
+        foreach (var ally in allies)
+        {
+            Highlight(ally, true);
+            ally.OnClickedToReceiveAction(() =>
+            {
+                Highlight(ally, false);
+                CombatManager.Instance.ExecuteHeal(currentPlayer, ally);
+            });
+        }
     }
 
     private void EndTurn()
@@ -104,5 +140,10 @@ public class UIManager : MonoBehaviour
         actionPanel.SetActive(false);
         currentPlayer.EndPlayerTurn();
         GameManager.Instance.turnManager.EndCurrentPlayerTurn();
+    }
+
+    public void HideActionPanel()
+    {
+        actionPanel.SetActive(false);
     }
 }

@@ -6,99 +6,86 @@ using UnityEngine;
 public class TurnManager : MonoBehaviour
 {
     private List<CharacterBase> turnOrder = new List<CharacterBase>();
-    private int currentTurnIndex = 0;
-    private bool isCombatActive = false;
-    private System.Action currentPlayerEndCallback;
-    public static TurnManager Instance { get; private set; }
+    private int turnIndex = 0;
 
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-        }
-    }
-    private void Start()
-    {
-        StartCombat();
-    }
+    private System.Action currentPlayerEndCallback;
 
     public void StartCombat()
     {
-        CharacterBase[] characters = FindObjectsOfType<CharacterBase>();
-
-        turnOrder = characters.OrderByDescending(c => c.speed).ToList();
+        CharacterBase[] allCharacters = FindObjectsOfType<CharacterBase>();
+        turnOrder = allCharacters.OrderByDescending(c => c.stats.speed).ToList();
 
         Debug.Log("Turn order:");
         foreach (var c in turnOrder)
-            //Debug.Log($"{c.characterName} - Speed: {c.speed}");
+            //Debug.Log($"{c.characterName} - Speed: {c.stats.speed}");
 
-        isCombatActive = true;
-        currentTurnIndex = 0;
-        StartCoroutine(ExecuteTurn());
+        StartCoroutine(CombatCycle());
     }
 
-    private IEnumerator ExecuteTurn()
+    private IEnumerator CombatCycle()
     {
-        while (isCombatActive)
+        while (true)
         {
-            if (turnOrder.Count == 0)
+            CharacterBase current = turnOrder[turnIndex];
+
+            if (!current.IsAlive())
             {
-                Debug.LogWarning("Jugadores no encontrados.");
-                yield break;
+                NextTurn();
+                continue;
             }
 
-            CharacterBase currentCharacter = turnOrder[currentTurnIndex];
+            //Debug.Log($"Es el turno de {current.characterName}");
 
-            if (currentCharacter.IsAlive())
+            current.PerformAction(() =>
             {
-                Debug.Log($"Es el turno de {currentCharacter.characterName}.");
-                bool actionCompleted = false;
+                CheckEndConditions();
+                NextTurn();
+            });
 
-                currentCharacter.PerformAction(() => { actionCompleted = true; });
-
-                yield return new WaitUntil(() => actionCompleted);
-            }
-            else
-            {
-                Debug.Log($"{currentCharacter.characterName} Muerto. Salteando turno.");
-            }
-
-            CheckVictoryConditions();
-
-            currentTurnIndex = (currentTurnIndex + 1) % turnOrder.Count;
+            yield return new WaitUntil(() => currentPlayerEndCallback == null);
         }
     }
 
-    private void CheckVictoryConditions()
+    public void RegisterPlayerCallback(CharacterBase character, System.Action onEnd)
     {
-        bool anyPlayerAlive = turnOrder.Any(c => c is PlayerCharacter && c.IsAlive());
-        bool anyEnemyAlive = turnOrder.Any(c => c is EnemyCharacter && c.IsAlive());
-
-        if (!anyEnemyAlive)
-        {
-            Debug.Log("¡Victoria! Todos los enemigos fueron derrotados.");
-            isCombatActive = false;
-        }
-        else if (!anyPlayerAlive)
-        {
-            Debug.Log("Derrota... Todos los jugadores han caído.");
-            isCombatActive = false;
-        }
-    }
-
-    public void RegisterPlayerCallback(CharacterBase player, System.Action onActionComplete)
-    {
-        currentPlayerEndCallback = onActionComplete;
+        currentPlayerEndCallback = onEnd;
     }
 
     public void EndCurrentPlayerTurn()
     {
         currentPlayerEndCallback?.Invoke();
         currentPlayerEndCallback = null;
+        ActiveMarker.Instance.Hide();
     }
+
+    private void NextTurn()
+    {
+        turnIndex = (turnIndex + 1) % turnOrder.Count;
+    }
+
+    public void CheckEndConditions()
+    {
+        List<CharacterBase> alivePlayers = turnOrder
+            .Where(c => c is PlayerCharacter && c.IsAlive()).ToList();
+
+        List<CharacterBase> aliveEnemies = turnOrder
+            .Where(c => c is EnemyCharacter && c.IsAlive()).ToList();
+
+        bool anyPlayerDead = turnOrder
+            .Any(c => c is PlayerCharacter && !c.IsAlive());
+
+        if (aliveEnemies.Count == 0)
+        {
+            Debug.Log(" Victoria: todos los enemigos han sido derrotados.");
+            GameManager.Instance.UIManager.ShowEndPanel(true);
+            StopAllCoroutines();
+        }
+        else if (anyPlayerDead && aliveEnemies.Count > 0)
+        {
+            Debug.Log(" Derrota: un jugador murió mientras quedan enemigos.");
+            GameManager.Instance.UIManager.ShowEndPanel(false);
+            StopAllCoroutines();
+        }
+    }
+
 }

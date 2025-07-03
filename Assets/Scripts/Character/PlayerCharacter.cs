@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerCharacter : CharacterBase
 {
     private int stepsRemaining;
-    private bool isMyTurn = false;
+
 
     private void Update()
     {
@@ -30,7 +30,7 @@ public class PlayerCharacter : CharacterBase
 
                 if (stepsRemaining <= 0)
                 {
-                    ShowActionPanel(); // Una vez que se mueve, habilitamos la acción
+                    ShowActionPanel();
                 }
             }
         }
@@ -40,19 +40,69 @@ public class PlayerCharacter : CharacterBase
     {
         isMyTurn = true;
         stepsRemaining = speed;
-
-        // Guardamos callback para cuando finalice su acción (por botón luego)
+        ActiveMarker.Instance.SetTarget(transform);
         GameManager.Instance.turnManager.RegisterPlayerCallback(this, onActionComplete);
     }
 
-    public void EndPlayerTurn()
-    {
-        isMyTurn = false;
-    }
+
 
     private void ShowActionPanel()
     {
         GameManager.Instance.UIManager.ShowActionsFor(this);
+    }
+
+    public List<EnemyCharacter> GetEnemiesInRange()
+    {
+        List<EnemyCharacter> enemies = new List<EnemyCharacter>();
+
+        foreach (var enemy in FindObjectsOfType<EnemyCharacter>())
+        {
+            if (!enemy.IsAlive()) continue;
+
+            int dist = Mathf.Abs(gridPosition.x - enemy.gridPosition.x) + Mathf.Abs(gridPosition.y - enemy.gridPosition.y);
+
+            if (stats.isRanged)
+            {
+                if (dist > 1 && dist <= stats.rangedRange)
+                    enemies.Add(enemy);
+            }
+            else
+            {
+                if (dist == 1)
+                    enemies.Add(enemy);
+            }
+        }
+
+        return enemies;
+    }
+
+    public List<CharacterBase> GetAlliesInHealRange()
+    {
+        List<CharacterBase> allies = new List<CharacterBase>();
+        foreach (var ally in FindObjectsOfType<PlayerCharacter>())
+        {
+            if (!ally.IsAlive() || ally == this) continue;
+
+            int dist = Mathf.Abs(gridPosition.x - ally.gridPosition.x) + Mathf.Abs(gridPosition.y - ally.gridPosition.y);
+            if (dist <= stats.healRange)
+                allies.Add(ally);
+        }
+        if (stats.canHeal)
+            allies.Add(this);
+
+        return allies;
+    }
+
+    private System.Action clickAction;
+
+    private void OnMouseDown()
+    {
+        clickAction?.Invoke();
+    }
+
+    public override void OnClickedToReceiveAction(System.Action callback)
+    {
+        clickAction = callback;
     }
 }
 

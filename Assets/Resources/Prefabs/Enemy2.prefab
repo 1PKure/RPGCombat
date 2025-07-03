@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3086660875212269657}
-  - component: {fileID: 4725664003940115418}
   - component: {fileID: 2365017142528770988}
+  - component: {fileID: 2033457656383337763}
   m_Layer: 0
   m_Name: Enemy2
   m_TagString: Enemy
@@ -34,20 +34,6 @@ Transform:
   - {fileID: 8834018429241585256}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4725664003940115418
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1594493563794045310}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6d8aa2793e9cbb44a4ef867f99c9a49, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 10
-  attackPower: 3
 --- !u!65 &2365017142528770988
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -69,6 +55,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2033457656383337763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1594493563794045310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d01cd60d2d3cb747ab07c70b5db15eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterName: Enemy2
+  maxHealth: 10
+  currentHealth: 6
+  speed: 2
+  gridPosition: {x: 0, y: 0}
+  stats: {fileID: 0}
+  isMyTurn: 0
 --- !u!1 &7684234298872815964
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,9 +7,6 @@ public class CombatManager : MonoBehaviour
     public static CombatManager Instance { get; private set; }
 
     [SerializeField] private int playerMaxHealth = 15;
-    private int playerHealth;
-
-    private Enemy currentEnemy;
 
     private void Awake()
     {
@@ -23,49 +20,38 @@ public class CombatManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public void StartCombat(Enemy enemy)
+    public void ExecuteAttack(CharacterBase attacker, CharacterBase target)
     {
-        currentEnemy = enemy;
-        playerHealth = playerMaxHealth;
+        int damage = attacker.stats.isRanged ? attacker.stats.rangedDamage : attacker.stats.meleeDamage;
+        target.TakeDamage(damage);
 
-        GameManager.Instance.ChangeState(GameState.Combat);
-        UIManager.Instance.ShowCombatUI(true);
-    }
+        Debug.Log($"{attacker.characterName} attacked {target.characterName} for {damage} HP.");
 
-    public void PlayerAttack(int damage)
-    {
-        currentEnemy.TakeDamage(damage);
-        UIManager.Instance.ShowEnemyHealth(currentEnemy.Health);
-
-        if (currentEnemy.IsDead)
+        if (!target.IsAlive())
         {
-            EndCombat(true);
-            Destroy(currentEnemy.gameObject);
-            return;
+            Destroy(target.gameObject);
+            Debug.Log($"{target.characterName} has died.");
         }
 
-        StartCoroutine(EnemyTurn());
+        GameManager.Instance.UIManager.HideActionPanel();
+        GameManager.Instance.turnManager.CheckEndConditions();
+
+        attacker.EndPlayerTurn();
+        GameManager.Instance.turnManager.EndCurrentPlayerTurn();
     }
 
-    private IEnumerator EnemyTurn()
+    public void ExecuteHeal(PlayerCharacter healer, CharacterBase target)
     {
-        yield return new WaitForSeconds(1f);
+        int amount = healer.stats.healAmount;
+        target.Heal(amount);
 
-        playerHealth -= currentEnemy.GetAttackPower();
-        UIManager.Instance.ShowPlayerHealth(playerHealth);
+        Debug.Log($"{healer.characterName} healed {target.characterName} for {amount} HP.");
 
-        if (playerHealth <= 0)
-        {
-            EndCombat(false);
-        }
-    }
+        GameManager.Instance.UIManager.HideActionPanel();
+        GameManager.Instance.turnManager.CheckEndConditions();
 
-    private void EndCombat(bool playerWon)
-    {
-        UIManager.Instance.ShowCombatUI(false);
-
-        GameManager.Instance.ChangeState(playerWon ? GameState.Victory : GameState.Defeat);
-        UIManager.Instance.ShowEndPanel(playerWon);
+        healer.EndPlayerTurn();
+        GameManager.Instance.turnManager.EndCurrentPlayerTurn();
     }
 }
 
