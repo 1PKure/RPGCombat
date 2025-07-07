@@ -6,8 +6,6 @@ public class CombatManager : MonoBehaviour
 {
     public static CombatManager Instance { get; private set; }
 
-    [SerializeField] private int playerMaxHealth = 15;
-
     private void Awake()
     {
         if (Instance != null)
@@ -17,20 +15,33 @@ public class CombatManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
-    public void ExecuteAttack(CharacterBase attacker, CharacterBase target)
+    public void ExecuteAttack(PlayerCharacter attacker, CharacterBase target)
     {
+        Vector2Int attackerPos = attacker.gridPosition;
+        Vector2Int targetPos = target.gridPosition;
+        int distance = Mathf.Abs(attackerPos.x - targetPos.x) + Mathf.Abs(attackerPos.y - targetPos.y);
+
+        bool canAttack = attacker.stats.isRanged
+            ? distance <= attacker.stats.rangedRange
+            : distance == 1 || (Mathf.Abs(attackerPos.x - targetPos.x) <= 1 && Mathf.Abs(attackerPos.y - targetPos.y) <= 1);
+
+        if (!canAttack)
+        {
+            UIManager.Instance.ShowMessage("Target out of range!");
+            return;
+        }
+
         int damage = attacker.stats.isRanged ? attacker.stats.rangedDamage : attacker.stats.meleeDamage;
         target.TakeDamage(damage);
 
-        Debug.Log($"{attacker.characterName} attacked {target.characterName} for {damage} HP.");
+        UIManager.Instance.ShowMessage($"{attacker.characterName} attacked {target.characterName} for {damage} HP.");
 
         if (!target.IsAlive())
         {
             Destroy(target.gameObject);
-            Debug.Log($"{target.characterName} has died.");
+            UIManager.Instance.ShowMessage($"{target.characterName} has died.");
         }
 
         GameManager.Instance.UIManager.HideActionPanel();
@@ -40,12 +51,13 @@ public class CombatManager : MonoBehaviour
         GameManager.Instance.turnManager.EndCurrentPlayerTurn();
     }
 
+
     public void ExecuteHeal(PlayerCharacter healer, CharacterBase target)
     {
         int amount = healer.stats.healAmount;
         target.Heal(amount);
 
-        Debug.Log($"{healer.characterName} healed {target.characterName} for {amount} HP.");
+        UIManager.Instance.ShowMessage($"{healer.characterName} healed {target.characterName} for {amount} HP.");
 
         GameManager.Instance.UIManager.HideActionPanel();
         GameManager.Instance.turnManager.CheckEndConditions();

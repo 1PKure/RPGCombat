@@ -8,21 +8,8 @@ public abstract class CharacterBase : MonoBehaviour
     public int maxHealth;
     public int currentHealth;
     public int speed;
-
     public Vector2Int gridPosition;
-
-    public CharacterStats stats;
     public bool isMyTurn = false;
-
-    public virtual void Initialize(string name, int hp, int speed, Vector2Int pos)
-    {
-        this.characterName = name;
-        this.maxHealth = stats.maxHP;
-        this.currentHealth = stats.maxHP;
-        this.speed = stats.speed;
-        this.gridPosition = pos;
-    }
-
     public abstract void PerformAction(System.Action onActionComplete);
 
     public void TakeDamage(int amount)
@@ -30,7 +17,13 @@ public abstract class CharacterBase : MonoBehaviour
         currentHealth -= amount;
         currentHealth = Mathf.Max(currentHealth, 0);
         GetComponentInChildren<HPDisplay>()?.UpdateHP();
-        Debug.Log($"{characterName} took {amount} damage. Current HP: {currentHealth}");
+        UIManager.Instance.ShowMessage($"{characterName} took {amount} damage. Current HP: {currentHealth}");
+        if (!IsAlive())
+        {
+            UIManager.Instance.ShowMessage($"{characterName} has been defeated.");
+            GameManager.Instance.turnManager.CheckEndConditions();
+            Destroy(gameObject);
+        }
     }
 
 
@@ -38,7 +31,7 @@ public abstract class CharacterBase : MonoBehaviour
     {
         currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
         GetComponentInChildren<HPDisplay>()?.UpdateHP();
-        Debug.Log($"{characterName} healed to {currentHealth}/{maxHealth} HP");
+        UIManager.Instance.ShowMessage($"{characterName} healed to {currentHealth}/{maxHealth} HP");
     }
 
     public bool IsAlive()

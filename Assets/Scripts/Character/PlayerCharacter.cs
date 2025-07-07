@@ -1,12 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 
 public class PlayerCharacter : CharacterBase
 {
     private int stepsRemaining;
 
+    public CharacterStats stats;
+    public void Initialize(Vector2Int pos)
+    {
+        this.characterName = stats.characterName;
+        this.maxHealth = stats.maxHP;
+        this.currentHealth = stats.maxHP;
+        this.speed = stats.speed;
+        this.gridPosition = pos;
 
+        transform.position = GameManager.Instance.mapView.GetWorldPosition(pos);
+    }
     private void Update()
     {
         if (!isMyTurn || stepsRemaining <= 0) return;
@@ -40,8 +51,9 @@ public class PlayerCharacter : CharacterBase
     {
         isMyTurn = true;
         stepsRemaining = speed;
-        ActiveMarker.Instance.SetTarget(transform);
         GameManager.Instance.turnManager.RegisterPlayerCallback(this, onActionComplete);
+        UIManager.Instance.ShowActionsFor(this);
+        ShowActionPanel();
     }
 
 

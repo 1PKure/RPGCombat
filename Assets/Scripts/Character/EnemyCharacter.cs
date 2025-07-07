@@ -5,6 +5,17 @@ using UnityEngine;
 
 public class EnemyCharacter : CharacterBase
 {
+    private CharacterBase stats;
+    public void Initialize(Vector2Int pos)
+    {
+        this.characterName = "Enemy";
+        this.maxHealth = 10;
+        this.currentHealth = 10;
+        this.gridPosition = pos;
+        this.speed = 1;
+
+        transform.position = GameManager.Instance.mapView.GetWorldPosition(pos);
+    }
     public override void PerformAction(System.Action onActionComplete)
     {
         StartCoroutine(EnemyTurnCoroutine(onActionComplete));
@@ -12,23 +23,27 @@ public class EnemyCharacter : CharacterBase
 
     private IEnumerator EnemyTurnCoroutine(System.Action onActionComplete)
     {
-        Debug.Log($"{characterName} empieza su turno.");
-        for (int i = 0; i < stats.speed; i++)
+        if (GameManager.Instance.turnManager.GameEnded)
+        {
+            onActionComplete?.Invoke();
+            yield break;
+        }
+        UIManager.Instance.ShowTurnMessage($"{characterName} Starts turn.");
+
+        for (int i = 0; i < speed; i++)
         {
             Vector2Int[] directions = {
-                Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right
-            };
+            Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right
+        };
 
-            Vector2Int newPos = gridPosition;
             Vector2Int chosenDir = directions[Random.Range(0, directions.Length)];
             Vector2Int potential = gridPosition + chosenDir;
 
             if (GameManager.Instance.mapView.IsAValidPosition(potential))
             {
-                newPos = potential;
-                gridPosition = newPos;
-                transform.position = GameManager.Instance.mapView.GetWorldPosition(newPos);
-                yield return new WaitForSeconds(0.1f); // Pausa para visualizar movimiento
+                gridPosition = potential;
+                transform.position = GameManager.Instance.mapView.GetWorldPosition(potential);
+                yield return new WaitForSeconds(0.1f);
             }
         }
 
@@ -39,38 +54,33 @@ public class EnemyCharacter : CharacterBase
 
         if (players.Count == 0)
         {
-            Debug.Log($"{characterName} no encontró jugadores.");
+            UIManager.Instance.ShowMessage($"{characterName} not found any players");
             onActionComplete?.Invoke();
             yield break;
         }
 
         PlayerCharacter closest = GetClosestPlayer(players);
 
-        int dist = Mathf.Abs(gridPosition.x - closest.gridPosition.x) + Mathf.Abs(gridPosition.y - closest.gridPosition.y);
+        int distance = Mathf.Abs(gridPosition.x - closest.gridPosition.x) + Mathf.Abs(gridPosition.y - closest.gridPosition.y);
 
-        bool canAttack =
-            (!stats.isRanged && dist == 1) ||
-            (stats.isRanged && dist > 1 && dist <= stats.rangedRange);
-
-        if (canAttack)
+        if (distance <= 1 || (Mathf.Abs(gridPosition.x - closest.gridPosition.x) <= 1 && Mathf.Abs(gridPosition.y - closest.gridPosition.y) <= 1))
         {
-            Debug.Log($"{characterName} ataca a {closest.characterName} (distancia: {dist})");
-
-            int damage = stats.isRanged ? stats.rangedDamage : stats.meleeDamage;
+            int damage = 3;
             closest.TakeDamage(damage);
-
-            if (!closest.IsAlive())
-                Destroy(closest.gameObject);
-
-            yield return new WaitForSeconds(0.2f);
+            UIManager.Instance.ShowMessage($"{characterName} attack {closest.characterName} for {damage} of damage.");
         }
-        else
+        else if (distance <= 3)
         {
-            Debug.Log($"{characterName} no pudo atacar.");
+            int damage = 1;
+            closest.TakeDamage(damage);
+            UIManager.Instance.ShowMessage($"{characterName} shoot {closest.characterName} for {damage} of damage.");
         }
 
+        GameManager.Instance.turnManager.CheckEndConditions();
+        yield return new WaitForSeconds(0.3f);
         onActionComplete?.Invoke();
     }
+
 
     private PlayerCharacter GetClosestPlayer(List<PlayerCharacter> players)
     {

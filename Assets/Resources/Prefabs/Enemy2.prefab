@@ -69,10 +69,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterName: Enemy2
   maxHealth: 10
-  currentHealth: 6
-  speed: 2
+  currentHealth: 10
+  speed: 1
   gridPosition: {x: 0, y: 0}
-  stats: {fileID: 0}
   isMyTurn: 0
 --- !u!1 &7684234298872815964
 GameObject:

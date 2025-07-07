@@ -9,7 +9,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Spawner spawner;
     [SerializeField] public TurnManager turnManager;
     public UIManager UIManager;
-    public GameState CurrentState { get; private set; } = GameState.Exploring;
 
     private void Awake()
     {
@@ -20,7 +19,6 @@ public class GameManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
@@ -33,13 +31,7 @@ public class GameManager : MonoBehaviour
         );
 
         mapView.InitializeMap(map);
-        spawner.SpawnCharacters();
+        spawner.SpawnAll();
         turnManager.StartCombat();
     }
-    public void ChangeState(GameState newState)
-    {
-        CurrentState = newState;
-    }
-
-    public bool CanMove() => CurrentState == GameState.Exploring;
 }

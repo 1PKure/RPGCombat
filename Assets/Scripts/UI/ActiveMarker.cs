@@ -4,19 +4,25 @@ using UnityEngine;
 
 public class ActiveMarker : MonoBehaviour
 {
-    public static ActiveMarker Instance;
+    public static ActiveMarker Instance { get; private set; }
 
     private void Awake()
     {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
     }
 
-    public void SetTarget(Transform target)
+    public void SetUIIndicator(RectTransform uiSlot)
     {
+        transform.SetParent(uiSlot);
+        transform.localPosition = Vector3.zero;
         gameObject.SetActive(true);
-        transform.SetParent(target);
-        transform.localPosition = Vector3.up * 1.5f;
     }
 
     public void Hide()

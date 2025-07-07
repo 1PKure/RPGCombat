@@ -7,17 +7,18 @@ public class TurnManager : MonoBehaviour
 {
     private List<CharacterBase> turnOrder = new List<CharacterBase>();
     private int turnIndex = 0;
-
     private System.Action currentPlayerEndCallback;
+    private bool gameEnded = false;
+    public bool GameEnded => gameEnded;
 
     public void StartCombat()
     {
         CharacterBase[] allCharacters = FindObjectsOfType<CharacterBase>();
-        turnOrder = allCharacters.OrderByDescending(c => c.stats.speed).ToList();
+        turnOrder = allCharacters.OrderByDescending(c => c.speed).ToList();
 
-        Debug.Log("Turn order:");
+
         foreach (var c in turnOrder)
-            //Debug.Log($"{c.characterName} - Speed: {c.stats.speed}");
+            UIManager.Instance.ShowMessage($"{c.characterName} - Speed: {c.speed}");
 
         StartCoroutine(CombatCycle());
     }
@@ -34,7 +35,7 @@ public class TurnManager : MonoBehaviour
                 continue;
             }
 
-            //Debug.Log($"Es el turno de {current.characterName}");
+            UIManager.Instance.ShowTurnMessage($"It's  {current.characterName} turn");
 
             current.PerformAction(() =>
             {
@@ -53,9 +54,11 @@ public class TurnManager : MonoBehaviour
 
     public void EndCurrentPlayerTurn()
     {
+
         currentPlayerEndCallback?.Invoke();
         currentPlayerEndCallback = null;
-        ActiveMarker.Instance.Hide();
+        if (ActiveMarker.Instance != null)
+            ActiveMarker.Instance.Hide();
     }
 
     private void NextTurn()
@@ -65,6 +68,7 @@ public class TurnManager : MonoBehaviour
 
     public void CheckEndConditions()
     {
+        if (gameEnded) return;
         List<CharacterBase> alivePlayers = turnOrder
             .Where(c => c is PlayerCharacter && c.IsAlive()).ToList();
 
@@ -74,17 +78,19 @@ public class TurnManager : MonoBehaviour
         bool anyPlayerDead = turnOrder
             .Any(c => c is PlayerCharacter && !c.IsAlive());
 
-        if (aliveEnemies.Count == 0)
+        if (alivePlayers.Count == 0 && aliveEnemies.Count > 0)
         {
-            Debug.Log(" Victoria: todos los enemigos han sido derrotados.");
-            GameManager.Instance.UIManager.ShowEndPanel(true);
-            StopAllCoroutines();
+            gameEnded = true;
+            UIManager.Instance.ShowTurnMessage("You Lose!");
+            UIManager.Instance.ShowEndPanel(false);
+            return;
         }
-        else if (anyPlayerDead && aliveEnemies.Count > 0)
+        if (aliveEnemies.Count == 0 && alivePlayers.Count > 0)
         {
-            Debug.Log(" Derrota: un jugador murió mientras quedan enemigos.");
-            GameManager.Instance.UIManager.ShowEndPanel(false);
-            StopAllCoroutines();
+            gameEnded = true;
+            UIManager.Instance.ShowTurnMessage("You Win!");
+            UIManager.Instance.ShowEndPanel(true);
+            return;
         }
     }
 
