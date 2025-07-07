@@ -36,13 +36,17 @@ public class TurnManager : MonoBehaviour
             }
 
             UIManager.Instance.ShowTurnMessage($"It's  {current.characterName} turn");
-
+            RectTransform iconTransform = UIManager.Instance.GetActionPanelIcon(current.characterName);
+            if (ActiveMarker.Instance != null && iconTransform != null)
+            {
+                ActiveMarker.Instance.SetUIIndicator(iconTransform);
+            }
             current.PerformAction(() =>
             {
                 CheckEndConditions();
                 NextTurn();
             });
-
+            current.PerformAction(currentPlayerEndCallback);
             yield return new WaitUntil(() => currentPlayerEndCallback == null);
         }
     }
@@ -78,7 +82,7 @@ public class TurnManager : MonoBehaviour
         bool anyPlayerDead = turnOrder
             .Any(c => c is PlayerCharacter && !c.IsAlive());
 
-        if (alivePlayers.Count == 0 && aliveEnemies.Count > 0)
+        if (alivePlayers.Count < turnOrder.Count(c => c is PlayerCharacter) && aliveEnemies.Count > 0)
         {
             gameEnded = true;
             UIManager.Instance.ShowTurnMessage("You Lose!");
@@ -88,7 +92,7 @@ public class TurnManager : MonoBehaviour
         if (aliveEnemies.Count == 0 && alivePlayers.Count > 0)
         {
             gameEnded = true;
-            UIManager.Instance.ShowTurnMessage("You Win!");
+            UIManager.Instance.ShowTurnMessage($"You Win! {alivePlayers[0].characterName} is the last player standing!");
             UIManager.Instance.ShowEndPanel(true);
             return;
         }

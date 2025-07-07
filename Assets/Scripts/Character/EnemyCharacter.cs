@@ -19,6 +19,7 @@ public class EnemyCharacter : CharacterBase
     public override void PerformAction(System.Action onActionComplete)
     {
         StartCoroutine(EnemyTurnCoroutine(onActionComplete));
+        onActionComplete?.Invoke();
     }
 
     private IEnumerator EnemyTurnCoroutine(System.Action onActionComplete)

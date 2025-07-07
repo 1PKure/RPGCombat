@@ -14,7 +14,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI endText;
     [SerializeField] private TextMeshProUGUI playerHealthText;
     [SerializeField] private TextMeshProUGUI enemyHealthText;
-    [SerializeField] private GameObject actionPanel;
+    [SerializeField] private Transform actionMarker;
     [SerializeField] private Button attackButton;
     [SerializeField] private Button healButton;
     [SerializeField] private Button escapeButton;
@@ -24,7 +24,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private RectTransform fighterSlot;
     [SerializeField] private RectTransform healerSlot;
     [SerializeField] private RectTransform rangerSlot;
-
 
     private PlayerCharacter currentPlayer;
     private void Awake()
@@ -38,6 +37,11 @@ public class UIManager : MonoBehaviour
         Instance = this;
     }
 
+    public RectTransform GetActionPanelIcon(string characterName)
+    {
+        Transform iconTransform = actionMarker.Find(characterName);
+        return iconTransform?.GetComponent<RectTransform>();
+    }
     public void ShowCombatUI(bool show)
     {
         combatPanel.SetActive(show);
@@ -87,7 +91,7 @@ public class UIManager : MonoBehaviour
     public void ShowActionsFor(PlayerCharacter player)
     {
         currentPlayer = player;
-        actionPanel.SetActive(true);
+        actionMarker.gameObject.SetActive(true); // Fix: Use gameObject property to access SetActive method  
 
         attackButton.interactable = true;
         healButton.interactable = true;
@@ -145,7 +149,7 @@ public class UIManager : MonoBehaviour
 
     public void HideActionPanel()
     {
-        actionPanel.SetActive(false);
+        actionMarker.gameObject.SetActive(false); // Fix: Use gameObject property to access SetActive method  
     }
 
     private void ClearHighlightsAndCallbacks()

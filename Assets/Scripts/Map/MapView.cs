@@ -51,7 +51,32 @@ public class MapView : MonoBehaviour
 
     public bool IsAValidPosition(Vector2Int posibleNewPosition)
     {
-        return ThePositionExists(posibleNewPosition) && PositionIsNotBlocked(posibleNewPosition);
+        if (!ThePositionExists(posibleNewPosition))
+            return false;
+
+        if (!PositionIsNotBlocked(posibleNewPosition))
+            return false;
+
+        if (IsPositionOccupied(posibleNewPosition))
+            return false;
+
+        return true;
+    }
+
+    private bool IsPositionOccupied(Vector2Int position)
+    {
+        // Buscar si hay algún objeto en la posición
+        foreach (var obj in Grid)
+        {
+            foreach (var cell in obj)
+            {
+                if (cell != null && cell.transform.position == GetWorldPosition(position))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private bool PositionIsNotBlocked(Vector2Int posibleNewPosition)
