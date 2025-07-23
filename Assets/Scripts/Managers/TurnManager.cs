@@ -87,6 +87,8 @@ public class TurnManager : MonoBehaviour
             gameEnded = true;
             UIManager.Instance.ShowTurnMessage("You Lose!");
             UIManager.Instance.ShowEndPanel(false);
+            if (InterstitialManager.Instance != null)
+                InterstitialManager.Instance.ShowInterstitialAd();
             return;
         }
         if (aliveEnemies.Count == 0 && alivePlayers.Count > 0)
@@ -94,6 +96,8 @@ public class TurnManager : MonoBehaviour
             gameEnded = true;
             UIManager.Instance.ShowTurnMessage($"You Win! {alivePlayers[0].characterName} is the last player standing!");
             UIManager.Instance.ShowEndPanel(true);
+            if (InterstitialManager.Instance != null)
+                InterstitialManager.Instance.ShowInterstitialAd();
             return;
         }
     }
