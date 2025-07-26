@@ -16,11 +16,11 @@ public abstract class CharacterBase : MonoBehaviour
     {
         currentHealth -= amount;
         currentHealth = Mathf.Max(currentHealth, 0);
-        GetComponentInChildren<HPDisplay>()?.UpdateHP();
-        UIManager.Instance.ShowMessage($"{characterName} took {amount} damage. Current HP: {currentHealth}");
+        GameManager.Instance.UIManager.UpdateHealthDisplays();
+        GameManager.Instance.UIManager.ShowMessage($"{characterName} took {amount} damage. Current HP: {currentHealth}");
         if (!IsAlive())
         {
-            UIManager.Instance.ShowMessage($"{characterName} has been defeated.");
+            GameManager.Instance.UIManager.ShowMessage($"{characterName} has been defeated.");
             GameManager.Instance.turnManager.CheckEndConditions();
             Destroy(gameObject);
         }
@@ -30,8 +30,8 @@ public abstract class CharacterBase : MonoBehaviour
     public virtual void Heal(int amount)
     {
         currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
-        GetComponentInChildren<HPDisplay>()?.UpdateHP();
-        UIManager.Instance.ShowMessage($"{characterName} healed to {currentHealth}/{maxHealth} HP");
+        GameManager.Instance.UIManager.UpdateHealthDisplays();
+        GameManager.Instance.UIManager.ShowMessage($"{characterName} healed to {currentHealth}/{maxHealth} HP");
     }
 
     public bool IsAlive()

@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] public MapView mapView;
     [SerializeField] private Spawner spawner;
     [SerializeField] public TurnManager turnManager;
+    [SerializeField] public CombatManager combatManager;
     public UIManager UIManager;
 
     private void Awake()

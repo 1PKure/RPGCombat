@@ -22,7 +22,7 @@ public class AdsManager : MonoBehaviour, IUnityAdsInitializationListener {
 #elif UNITY_IOS
         gameId = iosGameId;
         testMode = false;
-#elif UNITI_EDITOR
+#elif UNITY_EDITOR
         gameId = androidGameId;
         testMode = true;
 #endif

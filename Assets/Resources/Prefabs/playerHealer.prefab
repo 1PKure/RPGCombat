@@ -73,7 +73,6 @@ MonoBehaviour:
   speed: 2
   gridPosition: {x: 0, y: 0}
   isMyTurn: 0
-  actionPanelIcon: {fileID: 0}
   stats: {fileID: 11400000, guid: e93cb3978846b36428b901565a89f555, type: 2}
 --- !u!1 &5036382249484668372
 GameObject:

@@ -65,7 +65,6 @@ public class MapView : MonoBehaviour
 
     private bool IsPositionOccupied(Vector2Int position)
     {
-        // Buscar si hay algún objeto en la posición
         foreach (var obj in Grid)
         {
             foreach (var cell in obj)

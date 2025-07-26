@@ -6,37 +6,34 @@ using System.Collections;
 
 public class UIManager : MonoBehaviour
 {
-    public static UIManager Instance { get; private set; }
-
     [Header("UI References")]
     [SerializeField] private GameObject combatPanel;
     [SerializeField] private GameObject endPanel;
     [SerializeField] private TextMeshProUGUI endText;
-    [SerializeField] private TextMeshProUGUI playerHealthText;
-    [SerializeField] private TextMeshProUGUI enemyHealthText;
+    [SerializeField] private TextMeshProUGUI fighterHealthText;
+    [SerializeField] private TextMeshProUGUI enemy1HealthText;
+    [SerializeField] private TextMeshProUGUI healerHealthText;
+    [SerializeField] private TextMeshProUGUI rangerHealthText;
+    [SerializeField] private TextMeshProUGUI enemy2HealthText;
+    [SerializeField] private Button enemy1Button;
+    [SerializeField] private Button enemy2Button;
+    [SerializeField] private Button fighterButton;
+    [SerializeField] private Button healerButton;
+    [SerializeField] private Button rangerButton;
     [SerializeField] private Transform actionMarker;
     [SerializeField] private Button attackButton;
     [SerializeField] private Button healButton;
     [SerializeField] private Button escapeButton;
     [SerializeField] private TextMeshProUGUI turnText;
     [SerializeField] private TextMeshProUGUI messageText;
-    [SerializeField] private float messageDuration = 2f;
-    [SerializeField] private RectTransform fighterSlot;
-    [SerializeField] private RectTransform healerSlot;
-    [SerializeField] private RectTransform rangerSlot;
+    [SerializeField] private GameObject fighterMarker;
+    [SerializeField] private GameObject healerMarker;
+    [SerializeField] private GameObject rangerMarker;
+    [SerializeField] private GameObject enemy1Marker;
+    [SerializeField] private GameObject enemy2Marker;
 
+    private float messageDuration = 2f;
     private PlayerCharacter currentPlayer;
-    private void Awake()
-    {
-        if (Instance != null)
-        {
-            //Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-    }
-
     public RectTransform GetActionPanelIcon(string characterName)
     {
         Transform iconTransform = actionMarker.Find(characterName);
@@ -49,12 +46,12 @@ public class UIManager : MonoBehaviour
 
     public void ShowPlayerHealth(int value)
     {
-        playerHealthText.text = $"Player HP: {value}";
+        fighterHealthText.text = $"Player HP: {value}";
     }
 
     public void ShowEnemyHealth(int value)
     {
-        enemyHealthText.text = $"Enemy HP: {value}";
+        enemy1HealthText.text = $"Enemy HP: {value}";
     }
 
     public void ShowEndPanel(bool win)
@@ -91,7 +88,7 @@ public class UIManager : MonoBehaviour
     public void ShowActionsFor(PlayerCharacter player)
     {
         currentPlayer = player;
-        actionMarker.gameObject.SetActive(true); // Fix: Use gameObject property to access SetActive method  
+        actionMarker.gameObject.SetActive(true);
 
         attackButton.interactable = true;
         healButton.interactable = true;
@@ -103,41 +100,84 @@ public class UIManager : MonoBehaviour
         attackButton.onClick.AddListener(() => DoAttack());
         healButton.onClick.AddListener(() => DoHeal());
         escapeButton.onClick.AddListener(() => EndTurn());
-
-        if (player.characterName == "Fighter")
-            ActiveMarker.Instance.SetUIIndicator(fighterSlot);
-        else if (player.characterName == "Healer")
-            ActiveMarker.Instance.SetUIIndicator(healerSlot);
-        else if (player.characterName == "Ranger")
-            ActiveMarker.Instance.SetUIIndicator(rangerSlot);
     }
 
     public void DoAttack()
     {
-        EnemyCharacter[] enemies = FindObjectsOfType<EnemyCharacter>();
-        if (enemies.Length == 0) return;
+        ClearHighlightsAndCallbacks();
 
-        EnemyCharacter closest = enemies[0];
-        float minDist = Vector2Int.Distance(currentPlayer.gridPosition, closest.gridPosition);
-
-        foreach (EnemyCharacter enemy in enemies)
+        List<EnemyCharacter> targets = currentPlayer.GetEnemiesInRange();
+        if (targets.Count == 0)
         {
-            float dist = Vector2Int.Distance(currentPlayer.gridPosition, enemy.gridPosition);
-            if (dist < minDist)
+            ShowMessage("No enemies in range!");
+            return;
+        }
+
+        foreach (var enemy in targets)
+        {
+            if (enemy.characterName == "Enemy 1")
             {
-                closest = enemy;
-                minDist = dist;
+                enemy1Button.onClick.RemoveAllListeners();
+                enemy1Button.onClick.AddListener(() => OnEnemyClickedToAttack(enemy));
+            }
+            else if (enemy.characterName == "Enemy 2")
+            {
+                enemy2Button.onClick.RemoveAllListeners();
+                enemy2Button.onClick.AddListener(() => OnEnemyClickedToAttack(enemy));
             }
         }
 
-        CombatManager.Instance.ExecuteAttack(currentPlayer, closest);
+        ShowMessage("Choose a target to attack");
+    }
+
+
+    private void OnEnemyClickedToAttack(CharacterBase target)
+    {
+        GameManager.Instance.combatManager.ExecuteAttack(currentPlayer, target);
+        ClearHighlightsAndCallbacks();
     }
 
 
     public void DoHeal()
     {
-        CombatManager.Instance.ExecuteHeal(currentPlayer, currentPlayer);
+        ClearHighlightsAndCallbacks();
+
+        List<CharacterBase> targets = currentPlayer.GetAlliesInHealRange();
+        if (targets.Count == 0)
+        {
+            ShowMessage("No allies in range!");
+            return;
+        }
+
+        foreach (var ally in targets)
+        {
+            if (ally.characterName == "Fighter")
+            {
+                fighterButton.onClick.RemoveAllListeners();
+                fighterButton.onClick.AddListener(() => OnAllyClickedToHeal(ally));
+            }
+            else if (ally.characterName == "Healer")
+            {
+                healerButton.onClick.RemoveAllListeners();
+                healerButton.onClick.AddListener(() => OnAllyClickedToHeal(ally));
+            }
+            else if (ally.characterName == "Ranger")
+            {
+                rangerButton.onClick.RemoveAllListeners();
+                rangerButton.onClick.AddListener(() => OnAllyClickedToHeal(ally));
+            }
+        }
+
+        ShowMessage("Choose an ally to heal");
     }
+
+
+    private void OnAllyClickedToHeal(CharacterBase target)
+    {
+        GameManager.Instance.combatManager.ExecuteHeal(currentPlayer, target);
+        ClearHighlightsAndCallbacks();
+    }
+
 
     private void EndTurn()
     {
@@ -149,7 +189,26 @@ public class UIManager : MonoBehaviour
 
     public void HideActionPanel()
     {
-        actionMarker.gameObject.SetActive(false); // Fix: Use gameObject property to access SetActive method  
+        actionMarker.gameObject.SetActive(false);
+    }
+    public void UpdateHealthDisplays()
+    {
+        var players = FindObjectsOfType<PlayerCharacter>();
+        foreach (var p in players)
+        {
+            if (p.characterName == "Fighter")
+                fighterHealthText.text = $"Fighter HP: {p.currentHealth}";
+            else if (p.characterName == "Healer")
+                healerHealthText.text = $"Healer HP: {p.currentHealth}";
+            else if (p.characterName == "Ranger")
+                rangerHealthText.text = $"Ranger HP: {p.currentHealth}";
+        }
+
+        var enemies = FindObjectsOfType<EnemyCharacter>();
+        if (enemies.Length > 0)
+            enemy1HealthText.text = $"Enemy 1 HP: {enemies[0].currentHealth}";
+        if (enemies.Length > 1)
+            enemy2HealthText.text = $"Enemy 2 HP: {enemies[1].currentHealth}";
     }
 
     private void ClearHighlightsAndCallbacks()
@@ -159,5 +218,31 @@ public class UIManager : MonoBehaviour
             Highlight(character, false);
             character.OnClickedToReceiveAction(null);
         }
+
+        enemy1Button.onClick.RemoveAllListeners();
+        enemy2Button.onClick.RemoveAllListeners();
+        fighterButton.onClick.RemoveAllListeners();
+        healerButton.onClick.RemoveAllListeners();
+        rangerButton.onClick.RemoveAllListeners();
+    }
+
+    public void UpdateActiveMarker(CharacterBase current)
+    {
+        fighterMarker.SetActive(false);
+        healerMarker.SetActive(false);
+        rangerMarker.SetActive(false);
+        enemy1Marker.SetActive(false);
+        enemy2Marker.SetActive(false);
+
+        if (current.characterName == "Fighter")
+            fighterMarker.SetActive(true);
+        else if (current.characterName == "Healer")
+            healerMarker.SetActive(true);
+        else if (current.characterName == "Ranger")
+            rangerMarker.SetActive(true);
+        else if (current.characterName == "Enemy 1")
+            enemy1Marker.SetActive(true);
+        else if (current.characterName == "Enemy 2")
+            enemy2Marker.SetActive(true);
     }
 }

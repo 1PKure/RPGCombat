@@ -157,5 +157,4 @@ MonoBehaviour:
   speed: 4
   gridPosition: {x: 0, y: 0}
   isMyTurn: 0
-  actionPanelIcon: {fileID: 0}
   stats: {fileID: 11400000, guid: 65469a970dfd0784081279bd2c5c35a2, type: 2}

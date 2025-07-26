@@ -4,19 +4,6 @@ using UnityEngine;
 
 public class CombatManager : MonoBehaviour
 {
-    public static CombatManager Instance { get; private set; }
-
-    private void Awake()
-    {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-    }
-
     public void ExecuteAttack(PlayerCharacter attacker, CharacterBase target)
     {
         Vector2Int attackerPos = attacker.gridPosition;
@@ -29,22 +16,23 @@ public class CombatManager : MonoBehaviour
 
         if (!canAttack)
         {
-            UIManager.Instance.ShowMessage("Target out of range!");
+            GameManager.Instance.UIManager.ShowMessage("Target out of range!");
             return;
         }
 
         int damage = attacker.stats.isRanged ? attacker.stats.rangedDamage : attacker.stats.meleeDamage;
         target.TakeDamage(damage);
 
-        UIManager.Instance.ShowMessage($"{attacker.characterName} attacked {target.characterName} for {damage} HP.");
+        GameManager.Instance.UIManager.ShowMessage($"{attacker.characterName} attacked {target.characterName} for {damage} HP.");
 
         if (!target.IsAlive())
         {
             Destroy(target.gameObject);
-            UIManager.Instance.ShowMessage($"{target.characterName} has died.");
+            GameManager.Instance.UIManager.ShowMessage($"{target.characterName} has died.");
         }
 
         GameManager.Instance.UIManager.HideActionPanel();
+        GameManager.Instance.UIManager.UpdateHealthDisplays();
         GameManager.Instance.turnManager.CheckEndConditions();
 
         attacker.EndPlayerTurn();
@@ -57,9 +45,10 @@ public class CombatManager : MonoBehaviour
         int amount = healer.stats.healAmount;
         target.Heal(amount);
 
-        UIManager.Instance.ShowMessage($"{healer.characterName} healed {target.characterName} for {amount} HP.");
+        GameManager.Instance.UIManager.ShowMessage($"{healer.characterName} healed {target.characterName} for {amount} HP.");
 
         GameManager.Instance.UIManager.HideActionPanel();
+        GameManager.Instance.UIManager.UpdateHealthDisplays();
         GameManager.Instance.turnManager.CheckEndConditions();
 
         healer.EndPlayerTurn();

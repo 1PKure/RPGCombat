@@ -52,7 +52,7 @@ public class PlayerCharacter : CharacterBase
         isMyTurn = true;
         stepsRemaining = speed;
         GameManager.Instance.turnManager.RegisterPlayerCallback(this, onActionComplete);
-        UIManager.Instance.ShowActionsFor(this);
+        GameManager.Instance.UIManager.ShowActionsFor(this);
         ShowActionPanel();
     }
 

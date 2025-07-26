@@ -16,10 +16,6 @@ public class TurnManager : MonoBehaviour
         CharacterBase[] allCharacters = FindObjectsOfType<CharacterBase>();
         turnOrder = allCharacters.OrderByDescending(c => c.speed).ToList();
 
-
-        foreach (var c in turnOrder)
-            UIManager.Instance.ShowMessage($"{c.characterName} - Speed: {c.speed}");
-
         StartCoroutine(CombatCycle());
     }
 
@@ -35,12 +31,9 @@ public class TurnManager : MonoBehaviour
                 continue;
             }
 
-            UIManager.Instance.ShowTurnMessage($"It's  {current.characterName} turn");
-            RectTransform iconTransform = UIManager.Instance.GetActionPanelIcon(current.characterName);
-            if (ActiveMarker.Instance != null && iconTransform != null)
-            {
-                ActiveMarker.Instance.SetUIIndicator(iconTransform);
-            }
+            GameManager.Instance.UIManager.ShowTurnMessage($"It's  {current.characterName} turn");
+            GameManager.Instance.UIManager.UpdateActiveMarker(current);
+            RectTransform iconTransform = GameManager.Instance.UIManager.GetActionPanelIcon(current.characterName);
             current.PerformAction(() =>
             {
                 CheckEndConditions();
@@ -61,8 +54,6 @@ public class TurnManager : MonoBehaviour
 
         currentPlayerEndCallback?.Invoke();
         currentPlayerEndCallback = null;
-        if (ActiveMarker.Instance != null)
-            ActiveMarker.Instance.Hide();
     }
 
     private void NextTurn()
@@ -85,8 +76,8 @@ public class TurnManager : MonoBehaviour
         if (alivePlayers.Count < turnOrder.Count(c => c is PlayerCharacter) && aliveEnemies.Count > 0)
         {
             gameEnded = true;
-            UIManager.Instance.ShowTurnMessage("You Lose!");
-            UIManager.Instance.ShowEndPanel(false);
+            GameManager.Instance.UIManager.ShowTurnMessage("You Lose!");
+            GameManager.Instance.UIManager.ShowEndPanel(false);
             if (InterstitialManager.Instance != null)
                 InterstitialManager.Instance.ShowInterstitialAd();
             return;
@@ -94,8 +85,8 @@ public class TurnManager : MonoBehaviour
         if (aliveEnemies.Count == 0 && alivePlayers.Count > 0)
         {
             gameEnded = true;
-            UIManager.Instance.ShowTurnMessage($"You Win! {alivePlayers[0].characterName} is the last player standing!");
-            UIManager.Instance.ShowEndPanel(true);
+            GameManager.Instance.UIManager.ShowTurnMessage($"You Win! {alivePlayers[0].characterName} is the last player standing!");
+            GameManager.Instance.UIManager.ShowEndPanel(true);
             if (InterstitialManager.Instance != null)
                 InterstitialManager.Instance.ShowInterstitialAd();
             return;

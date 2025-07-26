@@ -29,7 +29,7 @@ public class EnemyCharacter : CharacterBase
             onActionComplete?.Invoke();
             yield break;
         }
-        UIManager.Instance.ShowTurnMessage($"{characterName} Starts turn.");
+        GameManager.Instance.UIManager.ShowTurnMessage($"{characterName} Starts turn.");
 
         for (int i = 0; i < speed; i++)
         {
@@ -55,7 +55,7 @@ public class EnemyCharacter : CharacterBase
 
         if (players.Count == 0)
         {
-            UIManager.Instance.ShowMessage($"{characterName} not found any players");
+            GameManager.Instance.UIManager.ShowMessage($"{characterName} not found any players");
             onActionComplete?.Invoke();
             yield break;
         }
@@ -68,13 +68,13 @@ public class EnemyCharacter : CharacterBase
         {
             int damage = 3;
             closest.TakeDamage(damage);
-            UIManager.Instance.ShowMessage($"{characterName} attack {closest.characterName} for {damage} of damage.");
+            GameManager.Instance.UIManager.ShowMessage($"{characterName} attack {closest.characterName} for {damage} of damage.");
         }
         else if (distance <= 3)
         {
             int damage = 1;
             closest.TakeDamage(damage);
-            UIManager.Instance.ShowMessage($"{characterName} shoot {closest.characterName} for {damage} of damage.");
+            GameManager.Instance.UIManager.ShowMessage($"{characterName} shoot {closest.characterName} for {damage} of damage.");
         }
 
         GameManager.Instance.turnManager.CheckEndConditions();
