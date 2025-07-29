@@ -31,7 +31,6 @@ public class CombatManager : MonoBehaviour
             GameManager.Instance.UIManager.ShowMessage($"{target.characterName} has died.");
         }
 
-        GameManager.Instance.UIManager.HideActionPanel();
         GameManager.Instance.UIManager.UpdateHealthDisplays();
         GameManager.Instance.turnManager.CheckEndConditions();
 
@@ -47,7 +46,6 @@ public class CombatManager : MonoBehaviour
 
         GameManager.Instance.UIManager.ShowMessage($"{healer.characterName} healed {target.characterName} for {amount} HP.");
 
-        GameManager.Instance.UIManager.HideActionPanel();
         GameManager.Instance.UIManager.UpdateHealthDisplays();
         GameManager.Instance.turnManager.CheckEndConditions();
 

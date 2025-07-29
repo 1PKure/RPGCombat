@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEngine.TextCore.Text;
 
 public class UIManager : MonoBehaviour
 {
@@ -10,17 +11,17 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject combatPanel;
     [SerializeField] private GameObject endPanel;
     [SerializeField] private TextMeshProUGUI endText;
-    [SerializeField] private TextMeshProUGUI fighterHealthText;
-    [SerializeField] private TextMeshProUGUI enemy1HealthText;
-    [SerializeField] private TextMeshProUGUI healerHealthText;
-    [SerializeField] private TextMeshProUGUI rangerHealthText;
-    [SerializeField] private TextMeshProUGUI enemy2HealthText;
+    [SerializeField] private TextMeshProUGUI fighterHPText;
+    [SerializeField] private TextMeshProUGUI enemy1HPText;
+    [SerializeField] private TextMeshProUGUI healerHPText;
+    [SerializeField] private TextMeshProUGUI rangerHPText;
+    [SerializeField] private TextMeshProUGUI enemy2HPText;
+    [SerializeField] private TextMeshProUGUI currentPlayerHPText;
     [SerializeField] private Button enemy1Button;
     [SerializeField] private Button enemy2Button;
     [SerializeField] private Button fighterButton;
     [SerializeField] private Button healerButton;
     [SerializeField] private Button rangerButton;
-    [SerializeField] private Transform actionMarker;
     [SerializeField] private Button attackButton;
     [SerializeField] private Button healButton;
     [SerializeField] private Button escapeButton;
@@ -34,11 +35,6 @@ public class UIManager : MonoBehaviour
 
     private float messageDuration = 2f;
     private PlayerCharacter currentPlayer;
-    public RectTransform GetActionPanelIcon(string characterName)
-    {
-        Transform iconTransform = actionMarker.Find(characterName);
-        return iconTransform?.GetComponent<RectTransform>();
-    }
     public void ShowCombatUI(bool show)
     {
         combatPanel.SetActive(show);
@@ -46,12 +42,12 @@ public class UIManager : MonoBehaviour
 
     public void ShowPlayerHealth(int value)
     {
-        fighterHealthText.text = $"Player HP: {value}";
+        fighterHPText.text = $"Player HP: {value}";
     }
 
     public void ShowEnemyHealth(int value)
     {
-        enemy1HealthText.text = $"Enemy HP: {value}";
+        enemy1HPText.text = $"Enemy HP: {value}";
     }
 
     public void ShowEndPanel(bool win)
@@ -88,15 +84,10 @@ public class UIManager : MonoBehaviour
     public void ShowActionsFor(PlayerCharacter player)
     {
         currentPlayer = player;
-        actionMarker.gameObject.SetActive(true);
 
         attackButton.interactable = true;
         healButton.interactable = true;
         escapeButton.interactable = true;
-        attackButton.onClick.RemoveAllListeners();
-        healButton.onClick.RemoveAllListeners();
-        escapeButton.onClick.RemoveAllListeners();
-
         attackButton.onClick.AddListener(() => DoAttack());
         healButton.onClick.AddListener(() => DoHeal());
         escapeButton.onClick.AddListener(() => EndTurn());
@@ -118,24 +109,18 @@ public class UIManager : MonoBehaviour
             if (enemy.characterName == "Enemy 1")
             {
                 enemy1Button.onClick.RemoveAllListeners();
-                enemy1Button.onClick.AddListener(() => OnEnemyClickedToAttack(enemy));
+                enemy1Button.onClick.AddListener(() => ExecuteAttack(enemy));
             }
             else if (enemy.characterName == "Enemy 2")
             {
                 enemy2Button.onClick.RemoveAllListeners();
-                enemy2Button.onClick.AddListener(() => OnEnemyClickedToAttack(enemy));
+                enemy2Button.onClick.AddListener(() => ExecuteAttack(enemy));
             }
         }
 
         ShowMessage("Choose a target to attack");
     }
 
-
-    private void OnEnemyClickedToAttack(CharacterBase target)
-    {
-        GameManager.Instance.combatManager.ExecuteAttack(currentPlayer, target);
-        ClearHighlightsAndCallbacks();
-    }
 
 
     public void DoHeal()
@@ -154,17 +139,17 @@ public class UIManager : MonoBehaviour
             if (ally.characterName == "Fighter")
             {
                 fighterButton.onClick.RemoveAllListeners();
-                fighterButton.onClick.AddListener(() => OnAllyClickedToHeal(ally));
+                fighterButton.onClick.AddListener(() => ExecuteHeal(ally));
             }
             else if (ally.characterName == "Healer")
             {
                 healerButton.onClick.RemoveAllListeners();
-                healerButton.onClick.AddListener(() => OnAllyClickedToHeal(ally));
+                healerButton.onClick.AddListener(() => ExecuteHeal(ally));
             }
             else if (ally.characterName == "Ranger")
             {
                 rangerButton.onClick.RemoveAllListeners();
-                rangerButton.onClick.AddListener(() => OnAllyClickedToHeal(ally));
+                rangerButton.onClick.AddListener(() => ExecuteHeal(ally));
             }
         }
 
@@ -172,43 +157,43 @@ public class UIManager : MonoBehaviour
     }
 
 
-    private void OnAllyClickedToHeal(CharacterBase target)
+    private void ExecuteAttack(CharacterBase enemy)
     {
-        GameManager.Instance.combatManager.ExecuteHeal(currentPlayer, target);
+        GameManager.Instance.combatManager.ExecuteAttack(currentPlayer, enemy);
+        UpdateHealthDisplays();
         ClearHighlightsAndCallbacks();
     }
+    private void ExecuteHeal(CharacterBase ally)
+    {
+        GameManager.Instance.combatManager.ExecuteHeal(currentPlayer, ally);
+        UpdateHealthDisplays();
+        ClearHighlightsAndCallbacks();
+    }
+
 
 
     private void EndTurn()
     {
-        HideActionPanel();
         ClearHighlightsAndCallbacks();
         currentPlayer.EndPlayerTurn();
         GameManager.Instance.turnManager.EndCurrentPlayerTurn();
-    }
-
-    public void HideActionPanel()
-    {
-        actionMarker.gameObject.SetActive(false);
     }
     public void UpdateHealthDisplays()
     {
         var players = FindObjectsOfType<PlayerCharacter>();
         foreach (var p in players)
         {
-            if (p.characterName == "Fighter")
-                fighterHealthText.text = $"Fighter HP: {p.currentHealth}";
-            else if (p.characterName == "Healer")
-                healerHealthText.text = $"Healer HP: {p.currentHealth}";
-            else if (p.characterName == "Ranger")
-                rangerHealthText.text = $"Ranger HP: {p.currentHealth}";
+            if (p.characterName == "Fighter") fighterHPText.text = $"HP: {p.currentHealth}";
+            else if (p.characterName == "Healer") healerHPText.text = $"HP: {p.currentHealth}";
+            else if (p.characterName == "Ranger") rangerHPText.text = $"HP: {p.currentHealth}";
         }
 
         var enemies = FindObjectsOfType<EnemyCharacter>();
-        if (enemies.Length > 0)
-            enemy1HealthText.text = $"Enemy 1 HP: {enemies[0].currentHealth}";
-        if (enemies.Length > 1)
-            enemy2HealthText.text = $"Enemy 2 HP: {enemies[1].currentHealth}";
+        foreach (var e in enemies)
+        {
+            if (e.characterName == "Enemy 1") enemy1HPText.text = $"HP: {e.currentHealth}";
+            else if (e.characterName == "Enemy 2") enemy2HPText.text = $"HP: {e.currentHealth}";
+        }
     }
 
     private void ClearHighlightsAndCallbacks()
@@ -244,5 +229,7 @@ public class UIManager : MonoBehaviour
             enemy1Marker.SetActive(true);
         else if (current.characterName == "Enemy 2")
             enemy2Marker.SetActive(true);
+
+        //currentPlayerHPText.text = $"{current.characterName} HP: {current.currentHealth}";
     }
 }

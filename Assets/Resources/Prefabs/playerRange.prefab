@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64f92002654c3354b93b1f93a4454447, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterName: Ranged
+  characterName: Ranger
   maxHealth: 30
   currentHealth: 15
   speed: 4

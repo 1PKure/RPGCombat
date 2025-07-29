@@ -33,7 +33,6 @@ public class TurnManager : MonoBehaviour
 
             GameManager.Instance.UIManager.ShowTurnMessage($"It's  {current.characterName} turn");
             GameManager.Instance.UIManager.UpdateActiveMarker(current);
-            RectTransform iconTransform = GameManager.Instance.UIManager.GetActionPanelIcon(current.characterName);
             current.PerformAction(() =>
             {
                 CheckEndConditions();
