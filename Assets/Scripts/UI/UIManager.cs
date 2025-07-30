@@ -35,6 +35,8 @@ public class UIManager : MonoBehaviour
 
     private float messageDuration = 2f;
     private PlayerCharacter currentPlayer;
+    private enum PendingAction { None, Attack, Heal }
+    private PendingAction pendingAction = PendingAction.None;
     public void ShowCombatUI(bool show)
     {
         combatPanel.SetActive(show);
@@ -103,18 +105,18 @@ public class UIManager : MonoBehaviour
             ShowMessage("No enemies in range!");
             return;
         }
-
+        pendingAction = PendingAction.Attack;
         foreach (var enemy in targets)
         {
             if (enemy.characterName == "Enemy 1")
             {
                 enemy1Button.onClick.RemoveAllListeners();
-                enemy1Button.onClick.AddListener(() => ExecuteAttack(enemy));
+                enemy1Button.onClick.AddListener(() => OnTargetSelected(enemy));
             }
             else if (enemy.characterName == "Enemy 2")
             {
                 enemy2Button.onClick.RemoveAllListeners();
-                enemy2Button.onClick.AddListener(() => ExecuteAttack(enemy));
+                enemy2Button.onClick.AddListener(() => OnTargetSelected(enemy));
             }
         }
 
@@ -139,17 +141,17 @@ public class UIManager : MonoBehaviour
             if (ally.characterName == "Fighter")
             {
                 fighterButton.onClick.RemoveAllListeners();
-                fighterButton.onClick.AddListener(() => ExecuteHeal(ally));
+                fighterButton.onClick.AddListener(() => OnTargetSelected(ally));
             }
             else if (ally.characterName == "Healer")
             {
                 healerButton.onClick.RemoveAllListeners();
-                healerButton.onClick.AddListener(() => ExecuteHeal(ally));
+                fighterButton.onClick.AddListener(() => OnTargetSelected(ally));
             }
             else if (ally.characterName == "Ranger")
             {
                 rangerButton.onClick.RemoveAllListeners();
-                rangerButton.onClick.AddListener(() => ExecuteHeal(ally));
+                fighterButton.onClick.AddListener(() => OnTargetSelected(ally));
             }
         }
 
@@ -168,6 +170,20 @@ public class UIManager : MonoBehaviour
         GameManager.Instance.combatManager.ExecuteHeal(currentPlayer, ally);
         UpdateHealthDisplays();
         ClearHighlightsAndCallbacks();
+    }
+
+    private void OnTargetSelected(CharacterBase target)
+    {
+        if (pendingAction == PendingAction.Attack)
+        {
+            ExecuteAttack(target);
+        }
+        else if (pendingAction == PendingAction.Heal)
+        {
+            ExecuteHeal(target);
+        }
+
+        pendingAction = PendingAction.None;
     }
 
 
@@ -198,6 +214,7 @@ public class UIManager : MonoBehaviour
 
     private void ClearHighlightsAndCallbacks()
     {
+        pendingAction = PendingAction.None;
         foreach (var character in FindObjectsOfType<CharacterBase>())
         {
             Highlight(character, false);
