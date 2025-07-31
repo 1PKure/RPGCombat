@@ -68,7 +68,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterName: Healer
-  maxHealth: 30
+  maxHealth: 15
   currentHealth: 15
   speed: 2
   gridPosition: {x: 0, y: 0}

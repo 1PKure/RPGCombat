@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterName: Fighter
-  maxHealth: 50
+  maxHealth: 20
   currentHealth: 20
   speed: 3
   gridPosition: {x: 0, y: 0}

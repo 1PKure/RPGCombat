@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterName: Ranger
-  maxHealth: 30
+  maxHealth: 15
   currentHealth: 15
   speed: 4
   gridPosition: {x: 0, y: 0}

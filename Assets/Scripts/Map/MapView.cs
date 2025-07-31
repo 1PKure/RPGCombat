@@ -47,6 +47,8 @@ public class MapView : MonoBehaviour
             }
             Grid.Add(gridRow);
         }
+
+        AdjustCameraToMap();
     }
 
     public bool IsAValidPosition(Vector2Int posibleNewPosition)
@@ -104,6 +106,15 @@ public class MapView : MonoBehaviour
         return GetWalkablePositions();
     }
 
+    public void AdjustCameraToMap()
+    {
+        int cols = map[0].Count;
+        int rows = map.Count;
 
+        float aspect = (float)Screen.width / Screen.height;
+        float targetSize = Mathf.Max(rows, cols / aspect) * mapConfigs.GridCellSize * 0.6f;
+
+        Camera.main.orthographicSize = targetSize + 0.6f;
+    }
 
 }

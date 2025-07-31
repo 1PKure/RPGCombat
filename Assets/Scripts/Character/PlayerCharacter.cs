@@ -18,6 +18,7 @@ public class PlayerCharacter : CharacterBase
 
         transform.position = GameManager.Instance.mapView.GetWorldPosition(pos);
     }
+#if UNITY_EDITOR || UNITY_STANDALONE
     private void Update()
     {
         if (!isMyTurn || stepsRemaining <= 0) return;
@@ -31,21 +32,11 @@ public class PlayerCharacter : CharacterBase
 
         if (inputDirection != Vector2Int.zero)
         {
-            Vector2Int newPos = gridPosition + inputDirection;
-
-            if (GameManager.Instance.mapView.IsAValidPosition(newPos))
-            {
-                gridPosition = newPos;
-                transform.position = GameManager.Instance.mapView.GetWorldPosition(newPos);
-                stepsRemaining--;
-
-                if (stepsRemaining <= 0)
-                {
-                    ShowActionPanel();
-                }
-            }
+            TryMoveInDirection(inputDirection);
         }
     }
+#endif
+
 
     public override void PerformAction(System.Action onActionComplete)
     {
@@ -116,5 +107,30 @@ public class PlayerCharacter : CharacterBase
     {
         clickAction = callback;
     }
+
+    public void TryMoveInDirection(Vector2Int inputDirection)
+    {
+        if (!isMyTurn || stepsRemaining <= 0) return;
+
+        Vector2Int newPos = gridPosition + inputDirection;
+
+        if (GameManager.Instance.mapView.IsAValidPosition(newPos))
+        {
+            gridPosition = newPos;
+            transform.position = GameManager.Instance.mapView.GetWorldPosition(newPos);
+            stepsRemaining--;
+
+            if (stepsRemaining <= 0)
+            {
+                ShowActionPanel();
+            }
+        }
+    }
+
+    public bool IsMyTurn()
+    {
+        return isMyTurn;
+    }
+
 }
 

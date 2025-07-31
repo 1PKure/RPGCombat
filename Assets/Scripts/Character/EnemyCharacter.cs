@@ -8,7 +8,6 @@ public class EnemyCharacter : CharacterBase
     private CharacterBase stats;
     public void Initialize(Vector2Int pos)
     {
-        this.characterName = "Enemy";
         this.maxHealth = 10;
         this.currentHealth = 10;
         this.gridPosition = pos;
@@ -48,7 +47,7 @@ public class EnemyCharacter : CharacterBase
             }
         }
 
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.5f);
 
         List<PlayerCharacter> players = new List<PlayerCharacter>(FindObjectsOfType<PlayerCharacter>());
         players.RemoveAll(p => !p.IsAlive());
@@ -78,7 +77,7 @@ public class EnemyCharacter : CharacterBase
         }
 
         GameManager.Instance.turnManager.CheckEndConditions();
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(2f);
         onActionComplete?.Invoke();
     }
 

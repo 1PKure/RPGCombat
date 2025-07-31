@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c4740b5dc9150b4695964d307eab802, type: 3}
   m_Name: HealerStats
   m_EditorClassIdentifier: 
-  characterName: Player 2
+  characterName: Healer
   maxHP: 15
   speed: 2
   meleeDamage: 2

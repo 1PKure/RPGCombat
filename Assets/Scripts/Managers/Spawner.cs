@@ -30,9 +30,9 @@ public class Spawner : MonoBehaviour
     {
         List<Vector2Int> allPositions = new List<Vector2Int>();
 
-        for (int x = 0; x < 6; x++) // 
+        for (int x = 0; x < 6; x++) 
         {
-            for (int y = 0; y < 4; y++) // 
+            for (int y = 0; y < 4; y++) 
             {
                 allPositions.Add(new Vector2Int(x, y));
             }

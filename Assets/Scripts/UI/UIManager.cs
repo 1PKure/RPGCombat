@@ -16,7 +16,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI healerHPText;
     [SerializeField] private TextMeshProUGUI rangerHPText;
     [SerializeField] private TextMeshProUGUI enemy2HPText;
-    [SerializeField] private TextMeshProUGUI currentPlayerHPText;
     [SerializeField] private Button enemy1Button;
     [SerializeField] private Button enemy2Button;
     [SerializeField] private Button fighterButton;
@@ -246,7 +245,5 @@ public class UIManager : MonoBehaviour
             enemy1Marker.SetActive(true);
         else if (current.characterName == "Enemy 2")
             enemy2Marker.SetActive(true);
-
-        //currentPlayerHPText.text = $"{current.characterName} HP: {current.currentHealth}";
     }
 }
