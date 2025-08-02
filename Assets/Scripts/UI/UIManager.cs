@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private GameObject combatPanel;
+    [SerializeField] private GameObject endCanvas;
     [SerializeField] private GameObject endPanel;
     [SerializeField] private TextMeshProUGUI endText;
     [SerializeField] private TextMeshProUGUI fighterHPText;
@@ -31,11 +32,26 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject rangerMarker;
     [SerializeField] private GameObject enemy1Marker;
     [SerializeField] private GameObject enemy2Marker;
+    [SerializeField] private GameObject creditsPanel;
 
     private float messageDuration = 2f;
     private PlayerCharacter currentPlayer;
     private enum PendingAction { None, Attack, Heal }
     private PendingAction pendingAction = PendingAction.None;
+
+    private void Start()
+    {
+        creditsPanel.SetActive(false);
+    }
+
+    public void OpenCredits()
+    {
+        creditsPanel.SetActive(true);
+    }
+    public void CloseCredits()
+    {
+        creditsPanel.SetActive(false);
+    }
     public void ShowCombatUI(bool show)
     {
         combatPanel.SetActive(show);
@@ -53,8 +69,15 @@ public class UIManager : MonoBehaviour
 
     public void ShowEndPanel(bool win)
     {
-        endPanel.SetActive(true);
-        endText.text = win ? "¡You Won!" : "You Lost.";
+        endCanvas.SetActive(true);
+
+        var image = endPanel.GetComponent<Image>();
+        if (image != null)
+        {
+            image.color = win ? Color.green : Color.red;
+        }
+
+        endText.text = win ? "¡You Won!" : "You Lost :(";
         Time.timeScale = 0f;
     }
     public void ShowTurnMessage(string message)

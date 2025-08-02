@@ -68,7 +68,7 @@ public class NotificationManager : MonoBehaviour
 
         var notification10Minutes = new AndroidNotification()
         {
-            Title = "TP01 - Portabilidad y optimización",
+            Title = "Final - Portabilidad y Optimizacion",
             Text = "Matias Pulido, volve a jugar!",
             FireTime = System.DateTime.Now.AddMinutes(10),
         };
@@ -104,7 +104,7 @@ public class NotificationManager : MonoBehaviour
         var notification = new iOSNotification()
         {
             Identifier = "_notification_01",
-            Title = "TP01 - Portabilidad y optimización",
+            Title = "Final - Portabilidad y optimizacion",
             Body = "Matias Pulido, volve a jugar!",
             ShowInForeground = true,
             ForegroundPresentationOption = (PresentationOption.Alert | PresentationOption.Sound),

@@ -19,7 +19,7 @@ public class MobilePlayerController : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(joystick.GetAxis());
+        //Debug.Log(joystick.GetAxis());
         if (player == null || !player.IsMyTurn()) return;
 
         timer += Time.deltaTime;
