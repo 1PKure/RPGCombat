@@ -19,8 +19,8 @@ public class MobilePlayerController : MonoBehaviour
 
     void Update()
     {
-        //Debug.Log(joystick.GetAxis());
-        if (player == null || !player.IsMyTurn()) return;
+        var current = GameManager.Instance.turnManager.CurrentCharacter as PlayerCharacter;
+        if (current == null || !current.IsMyTurn()) return;
 
         timer += Time.deltaTime;
 
@@ -42,7 +42,7 @@ public class MobilePlayerController : MonoBehaviour
         if (moveDir != Vector2Int.zero && timer >= inputDelay)
         {
             timer = 0f;
-            player.TryMoveInDirection(moveDir);
+            current.TryMoveInDirection(moveDir);
         }
     }
 }

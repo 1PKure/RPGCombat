@@ -21,6 +21,10 @@ public class GameManager : MonoBehaviour
         }
 
         Instance = this;
+#if UNITY_ANDROID && !UNITY_EDITOR
+    if (!Permission.HasUserAuthorizedPermission(Permission.PostNotifications))
+        Permission.RequestUserPermission(Permission.PostNotifications);
+#endif
     }
 
     private void Start()

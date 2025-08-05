@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using UnityEditor.Experimental.GraphView;
 
 public class CombatManager : MonoBehaviour
 {
@@ -41,9 +42,16 @@ public class CombatManager : MonoBehaviour
 
     public void ExecuteHeal(PlayerCharacter healer, CharacterBase target)
     {
+        
+        int distance = healer.stats.isRanged ? healer.stats.healAmount : healer.stats.healAmount;
+        if (distance > healer.stats.healRange)
+        {
+            GameManager.Instance.UIManager.ShowMessage("Target out of heal range!");
+            return;
+        }
+
         int amount = healer.stats.healAmount;
         target.Heal(amount);
-
         GameManager.Instance.UIManager.ShowMessage($"{healer.characterName} healed {target.characterName} for {amount} HP.");
 
         GameManager.Instance.UIManager.UpdateHealthDisplays();

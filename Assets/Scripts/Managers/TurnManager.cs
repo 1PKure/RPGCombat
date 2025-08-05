@@ -6,11 +6,11 @@ using UnityEngine;
 public class TurnManager : MonoBehaviour
 {
     private List<CharacterBase> turnOrder = new List<CharacterBase>();
+    public CharacterBase CurrentCharacter => turnOrder[turnIndex];
     private int turnIndex = 0;
     private System.Action currentPlayerEndCallback;
     private bool gameEnded = false;
     public bool GameEnded => gameEnded;
-
     public void StartCombat()
     {
         CharacterBase[] allCharacters = FindObjectsOfType<CharacterBase>();
