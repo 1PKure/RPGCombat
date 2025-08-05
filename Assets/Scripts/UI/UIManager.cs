@@ -33,11 +33,14 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject enemy1Marker;
     [SerializeField] private GameObject enemy2Marker;
     [SerializeField] private GameObject creditsPanel;
+    [SerializeField] private GameObject joystickGameObject;
+    [SerializeField] private GameObject mapView;
 
     private float messageDuration = 2f;
     private PlayerCharacter currentPlayer;
     private enum PendingAction { None, Attack, Heal }
     private PendingAction pendingAction = PendingAction.None;
+
 
     private void Start()
     {
@@ -69,6 +72,11 @@ public class UIManager : MonoBehaviour
 
     public void ShowEndPanel(bool win)
     {
+        ShowCombatUI(false);
+        creditsPanel.SetActive(false);
+        joystickGameObject.SetActive(false);
+        mapView.gameObject.SetActive(false);
+
         endCanvas.SetActive(true);
 
         var image = endPanel.GetComponent<Image>();
@@ -151,6 +159,13 @@ public class UIManager : MonoBehaviour
     {
         ClearHighlightsAndCallbacks();
 
+        if (currentPlayer.characterName != "Healer")
+        {
+            ExecuteHeal(currentPlayer);
+            return;
+        }
+
+        pendingAction = PendingAction.Heal;
         List<CharacterBase> targets = currentPlayer.GetAlliesInHealRange();
         if (targets.Count == 0)
         {
@@ -160,20 +175,20 @@ public class UIManager : MonoBehaviour
 
         foreach (var ally in targets)
         {
-            if (ally.characterName == "Fighter")
+            switch (ally.characterName)
             {
-                fighterButton.onClick.RemoveAllListeners();
-                fighterButton.onClick.AddListener(() => OnTargetSelected(ally));
-            }
-            else if (ally.characterName == "Healer")
-            {
-                healerButton.onClick.RemoveAllListeners();
-                fighterButton.onClick.AddListener(() => OnTargetSelected(ally));
-            }
-            else if (ally.characterName == "Ranger")
-            {
-                rangerButton.onClick.RemoveAllListeners();
-                fighterButton.onClick.AddListener(() => OnTargetSelected(ally));
+                case "Fighter":
+                    fighterButton.onClick.RemoveAllListeners();
+                    fighterButton.onClick.AddListener(() => OnTargetSelected(ally));
+                    break;
+                case "Healer":
+                    healerButton.onClick.RemoveAllListeners();
+                    healerButton.onClick.AddListener(() => OnTargetSelected(ally));
+                    break;
+                case "Ranger":
+                    rangerButton.onClick.RemoveAllListeners();
+                    rangerButton.onClick.AddListener(() => OnTargetSelected(ally));
+                    break;
             }
         }
 

@@ -42,13 +42,15 @@ public class CombatManager : MonoBehaviour
 
     public void ExecuteHeal(PlayerCharacter healer, CharacterBase target)
     {
-        
-        int distance = healer.stats.isRanged ? healer.stats.healAmount : healer.stats.healAmount;
-        if (distance > healer.stats.healRange)
+        int dist = Mathf.Abs(healer.gridPosition.x - target.gridPosition.x)
+             + Mathf.Abs(healer.gridPosition.y - target.gridPosition.y);
+
+        if (target != healer && dist > healer.stats.healRange)
         {
             GameManager.Instance.UIManager.ShowMessage("Target out of heal range!");
             return;
         }
+
 
         int amount = healer.stats.healAmount;
         target.Heal(amount);
