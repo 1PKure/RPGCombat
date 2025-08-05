@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Terresquall;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
@@ -10,6 +12,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Spawner spawner;
     [SerializeField] public TurnManager turnManager;
     [SerializeField] public CombatManager combatManager;
+    [SerializeField] private GameObject combatPanel;
+    [SerializeField] private GameObject joystickGO;      
+    [SerializeField] private GameObject endCanvas;
     public UIManager UIManager;
 
     private void Awake()
@@ -21,10 +26,23 @@ public class GameManager : MonoBehaviour
         }
 
         Instance = this;
-#if UNITY_ANDROID && !UNITY_EDITOR
-    if (!Permission.HasUserAuthorizedPermission(Permission.PostNotifications))
-        Permission.RequestUserPermission(Permission.PostNotifications);
-#endif
+    }
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+    void OnSceneLoaded(Scene s, LoadSceneMode m)
+    {
+
+        combatPanel.SetActive(true);
+        joystickGO.SetActive(true);
+
+
+        endCanvas.SetActive(false);
     }
 
     private void Start()

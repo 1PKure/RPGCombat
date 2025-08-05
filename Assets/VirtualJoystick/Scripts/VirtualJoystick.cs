@@ -106,27 +106,23 @@ namespace Terresquall {
         }
 
         // Get an existing instance of a joystick.
-        public static VirtualJoystick GetInstance(int id = 0) {
-            // Display an error if an invalid ID is used.
-            if (!instances.ContainsKey(id)) {
-                // If used without any arguments, but no item has an ID of 0,
-                // we get the first item in the dictionary.
-                if (id == 0) {
-                    if (instances.Count > 0) {
-                        id = instances.Keys.First();
-                        Debug.LogWarning($"You are reading Joystick input without specifying an ID, so joystick ID {id} is being used instead.");
-                    } else {
-                        Debug.LogError("There are no Virtual Joysticks in the Scene!");
-                        return null;
-                    }
-                } else {
-                    Debug.LogError($"Virtual Joystick ID '{id}' does not exist!");
-                    return null;
-                }
+        public static VirtualJoystick GetInstance(int id = 0)
+        {
+            // 1) Si ya hay una instancia viva registrada, úsala.
+            if (instances.TryGetValue(id, out var joy) && joy != null && joy.isActiveAndEnabled)
+                return joy;
+
+            // 2) Si aquí no hay nada, busca EL PRIMER joystick activo en la escena:
+            joy = GameObject.FindObjectOfType<VirtualJoystick>();
+            if (joy != null)
+            {
+                instances[id] = joy;
+                return joy;
             }
 
-            // If the code gets here, we can get and return an instance.
-            return instances[id];
+            // 3) Ningún joystick en escena → error
+            Debug.LogError("No Virtual Joystick found in the scene!");
+            return null;
         }
 
         // Gets us the number of active joysticks on the screen.

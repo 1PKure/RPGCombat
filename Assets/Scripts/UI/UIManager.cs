@@ -36,7 +36,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject joystickGameObject;
     [SerializeField] private GameObject mapView;
 
-    private float messageDuration = 2f;
+    private float messageDuration = 3.5f;
     private PlayerCharacter currentPlayer;
     private enum PendingAction { None, Attack, Heal }
     private PendingAction pendingAction = PendingAction.None;

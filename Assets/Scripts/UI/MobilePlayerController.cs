@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Terresquall;
 
 public class MobilePlayerController : MonoBehaviour
@@ -8,7 +9,6 @@ public class MobilePlayerController : MonoBehaviour
     public float inputDelay = 0.3f;
     private float timer;
     private PlayerCharacter player;
-
     private VirtualJoystick joystick;
 
     void Start()
@@ -16,10 +16,13 @@ public class MobilePlayerController : MonoBehaviour
         joystick = VirtualJoystick.GetInstance();
         player = FindObjectOfType<PlayerCharacter>();
     }
+   
 
     void Update()
     {
         var current = GameManager.Instance.turnManager.CurrentCharacter as PlayerCharacter;
+        if (joystick == null) joystick = VirtualJoystick.GetInstance();
+        if (player == null) player = FindObjectOfType<PlayerCharacter>();
         if (current == null || !current.IsMyTurn()) return;
 
         timer += Time.deltaTime;
