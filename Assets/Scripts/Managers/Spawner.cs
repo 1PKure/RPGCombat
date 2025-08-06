@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,6 +14,8 @@ public class Spawner : MonoBehaviour
 
     [SerializeField] private MapView mapView;
 
+    private bool hasSpawned = false;
+
     public void Spawn(GameObject prefab, Vector2Int gridPosition)
     {
         Vector3 worldPos = mapView.GetWorldPosition(gridPosition);
@@ -28,22 +29,20 @@ public class Spawner : MonoBehaviour
 
     public void SpawnAll()
     {
-        List<Vector2Int> allPositions = new List<Vector2Int>();
+        if (hasSpawned) return;
+        hasSpawned = true;
 
-        for (int x = 0; x < 6; x++) 
-        {
-            for (int y = 0; y < 4; y++) 
-            {
+        List<Vector2Int> allPositions = new List<Vector2Int>();
+        for (int x = 0; x < 6; x++)
+            for (int y = 0; y < 4; y++)
                 allPositions.Add(new Vector2Int(x, y));
-            }
-        }
 
         for (int i = allPositions.Count - 1; i > 0; i--)
         {
             int j = Random.Range(0, i + 1);
-            Vector2Int temp = allPositions[i];
+            var tmp = allPositions[i];
             allPositions[i] = allPositions[j];
-            allPositions[j] = temp;
+            allPositions[j] = tmp;
         }
 
         Vector2Int pos1 = allPositions[0];
@@ -52,12 +51,11 @@ public class Spawner : MonoBehaviour
         Vector2Int pos4 = allPositions[3];
         Vector2Int pos5 = allPositions[4];
 
+
         Spawn(playerFighter, pos1);
         Spawn(playerHealer, pos2);
         Spawn(playerRanger, pos3);
-
         Spawn(enemy1, pos4);
         Spawn(enemy2, pos5);
     }
 }
-

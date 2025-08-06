@@ -1,21 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
-using Terresquall;
+// Assets/Scripts/GameManager.cs
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    [SerializeField] public MapView mapView;
-    [SerializeField] private Spawner spawner;
-    [SerializeField] public TurnManager turnManager;
-    [SerializeField] public CombatManager combatManager;
-    [SerializeField] private GameObject combatPanel;
-    [SerializeField] private GameObject joystickGO;      
-    [SerializeField] private GameObject endCanvas;
-    public UIManager UIManager;
+
+    public MapView mapView { get; private set; }
+    public Spawner spawner { get; private set; }
+    public TurnManager turnManager { get; private set; }
+    public CombatManager combatManager { get; private set; }
+    public UIManager UIManager { get; private set; }
 
     private void Awake()
     {
@@ -24,37 +19,45 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         Instance = this;
-    }
-    void OnEnable()
-    {
+        DontDestroyOnLoad(gameObject);
+
         SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-    void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-    void OnSceneLoaded(Scene s, LoadSceneMode m)
-    {
 
-        combatPanel.SetActive(true);
-        joystickGO.SetActive(true);
-
-
-        endCanvas.SetActive(false);
+        CacheSceneReferences();
+        InitGame();
     }
 
-    private void Start()
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+ 
+        CacheSceneReferences();
+        InitGame();
+    }
+
+    private void CacheSceneReferences()
+    {
+ 
+        mapView = FindObjectOfType<MapView>();
+        spawner = FindObjectOfType<Spawner>();
+        turnManager = FindObjectOfType<TurnManager>();
+        combatManager = FindObjectOfType<CombatManager>();
+        UIManager = FindObjectOfType<UIManager>();
+    }
+
+    private void InitGame()
+    {
+        Time.timeScale = 1f;
+        UIManager.SetupUI();
+
         var map = MapBuilder.GenerateMap(
             mapView.mapConfigs.GridWidth,
             mapView.mapConfigs.GridHeight,
             mapView.mapConfigs.ObstacleProbability,
             mapView.mapConfigs.StartPosition
         );
-
         mapView.InitializeMap(map);
+
         spawner.SpawnAll();
         turnManager.StartCombat();
     }
@@ -69,7 +72,7 @@ public class GameManager : MonoBehaviour
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-        Application.Quit(); // Salir del juego en el ejecutable
+        Application.Quit();
 #endif
     }
 }

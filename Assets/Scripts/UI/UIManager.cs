@@ -46,7 +46,22 @@ public class UIManager : MonoBehaviour
     {
         creditsPanel.SetActive(false);
     }
+    public void SetupUI()
+    {
+        combatPanel.SetActive(true);
 
+
+        endCanvas.SetActive(false);
+        endPanel.SetActive(true);
+
+        creditsPanel.SetActive(false);
+        messageText.gameObject.SetActive(false);
+
+        joystickGameObject.SetActive(true);
+        mapView.SetActive(true);
+
+        ClearHighlightsAndCallbacks();
+    }
     public void OpenCredits()
     {
         creditsPanel.SetActive(true);
@@ -72,19 +87,14 @@ public class UIManager : MonoBehaviour
 
     public void ShowEndPanel(bool win)
     {
+        // Oculta todo menos el endCanvas
         ShowCombatUI(false);
         creditsPanel.SetActive(false);
         joystickGameObject.SetActive(false);
-        mapView.gameObject.SetActive(false);
+        mapView.SetActive(false);
 
         endCanvas.SetActive(true);
-
-        var image = endPanel.GetComponent<Image>();
-        if (image != null)
-        {
-            image.color = win ? Color.green : Color.red;
-        }
-
+        endPanel.GetComponent<Image>().color = win ? Color.green : Color.red;
         endText.text = win ? "¡You Won!" : "You Lost :(";
         Time.timeScale = 0f;
     }

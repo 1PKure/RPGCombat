@@ -27,6 +27,7 @@ public class InterstitialManager : MonoBehaviour, IUnityAdsLoadListener, IUnityA
 #elif UNITY_IOS
         _unityId = _iosUnityId;
 #endif
+        Initialize();
     }
 
     internal void Initialize() {

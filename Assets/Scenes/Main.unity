@@ -2428,10 +2428,10 @@ RectTransform:
   - {fileID: 341696875}
   m_Father: {fileID: 1011405891}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -0.0000076293945}
-  m_SizeDelta: {x: 699, y: 393}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &904520515
 MonoBehaviour:
@@ -5648,14 +5648,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b128fa7ff95a6824da4da25561d0f7fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapView: {fileID: 159470908}
-  spawner: {fileID: 607295433}
-  turnManager: {fileID: 1916191513}
-  combatManager: {fileID: 1709217081}
-  combatPanel: {fileID: 1619527497}
-  joystickGO: {fileID: 308900864}
-  endCanvas: {fileID: 1011405890}
-  UIManager: {fileID: 1524052324}
 --- !u!4 &1882696173
 Transform:
   m_ObjectHideFlags: 0

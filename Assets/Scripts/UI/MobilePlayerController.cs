@@ -11,17 +11,17 @@ public class MobilePlayerController : MonoBehaviour
     private PlayerCharacter player;
     private VirtualJoystick joystick;
 
-    void Start()
-    {
-        joystick = VirtualJoystick.GetInstance();
-        player = FindObjectOfType<PlayerCharacter>();
-    }
-   
+
 
     void Update()
     {
+        var joystick = VirtualJoystick.GetInstance();
         var current = GameManager.Instance.turnManager.CurrentCharacter as PlayerCharacter;
-        if (joystick == null) joystick = VirtualJoystick.GetInstance();
+        if (joystick == null || current == null || !current.IsMyTurn())
+        {
+            timer = 0f;
+            return;
+        }
         if (player == null) player = FindObjectOfType<PlayerCharacter>();
         if (current == null || !current.IsMyTurn()) return;
 
