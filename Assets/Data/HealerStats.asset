@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: HealerStats
   m_EditorClassIdentifier: 
   characterName: Healer
-  maxHP: 15
+  maxHP: 10
   speed: 2
   meleeDamage: 2
   rangedDamage: 2

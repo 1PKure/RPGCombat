@@ -18,7 +18,7 @@ MonoBehaviour:
   meleeDamage: 5
   rangedDamage: 0
   rangedRange: 1
-  healAmount: 2
+  healAmount: 3
   healRange: 0
   canHeal: 0
   isRanged: 0

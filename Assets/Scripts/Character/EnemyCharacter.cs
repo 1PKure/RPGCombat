@@ -65,13 +65,13 @@ public class EnemyCharacter : CharacterBase
 
         if (distance <= 1 || (Mathf.Abs(gridPosition.x - closest.gridPosition.x) <= 1 && Mathf.Abs(gridPosition.y - closest.gridPosition.y) <= 1))
         {
-            int damage = 3;
+            int damage = 4;
             closest.TakeDamage(damage);
             GameManager.Instance.UIManager.ShowMessage($"{characterName} attack {closest.characterName} for {damage} of damage.");
         }
         else if (distance <= 3)
         {
-            int damage = 1;
+            int damage = 2;
             closest.TakeDamage(damage);
             GameManager.Instance.UIManager.ShowMessage($"{characterName} shoot {closest.characterName} for {damage} of damage.");
         }
